@@ -1,6 +1,8 @@
 Item {
     property int foo
 
+    signal clicked(int x, int y)
+
     /**
      * Do something with arg1 and arg2
      */
@@ -14,5 +16,8 @@ Item {
      */
     function square(arg) {
         return arg * arg;
+    }
+
+    function refresh() {
     }
 }
