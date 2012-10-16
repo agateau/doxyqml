@@ -1,33 +1,17 @@
 # Goals
 
-Turn a .qml into something Doxygen can swallow
+Turns a .qml into something Doxygen can swallow through an input filter.
 
-When parsing Foo.qml:
+# Setup
 
-    FooBase {
-    => class Foo : public FooBase {
+First, make sure doxyqml is in $PATH. For example with:
 
-    property $type $name
-    => Q_PROPERTY($type $name)
+    ln -s /path/to/doxyqml.py $HOME/bin/doxyqml
 
-    signal $name[(<$type $argname>...)]
-    => Q_SIGNAL void $name($type $argname,...)
+Then in your Doxygen file, add .qml files to `FILE_PATTERNS`:
 
-    function $name(<$type $argname>...)
-    => Q_INVOKABLE void $name($type $argname,...)
-    // Note: Need comment for return type
+    FILE_PATTERNS = *.qml
 
-Ignore inner elements.
+And set `FILTER_PATTERNS`:
 
-Needs two extract modes:
-
-- extract-documented: only extract elements with a Doxygen comment block
-- extract-all: extract all elements
-
-Should be extract-documented by default to enforce good practices: an element
-is private unless documented (and not documented as @internal)
-
-# Implementation
-
-First approach: not a full-parser, just replace interesting lines with their
-C++ equivalent, remove lines for inner elements.
+    FILTER_PATTERNS = *.qml=doxyqml
