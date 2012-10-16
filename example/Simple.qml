@@ -20,4 +20,7 @@ Item {
 
     function refresh() {
     }
+
+    Item {
+    }
 }

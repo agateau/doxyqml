@@ -88,6 +88,7 @@ class ClassParser(object):
         # Start of a block
         if len(line) > 0 and line[-1] == "{":
             self.app.push_parser(SkipBlockParser())
+            return
 
         print line
 
