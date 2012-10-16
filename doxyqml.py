@@ -11,42 +11,46 @@ SIGNAL_DEF_RX = re.compile("signal (\w+)( *\((?P<args>.*)\))?")
 FCN_DEF_RX = re.compile("function (\w+) *\((?P<args>.*)\)")
 
 
-class HeaderParser:
-    def __init__(self, classname):
+class HeaderParser(object):
+    def __init__(self, app, classname):
+        self.app = app
         self.classname = classname
 
     def __call__(self, line):
         if line.startswith("/*"):
             print line
-            return CommentParser(next=self)
+            self.app.push_parser(CommentParser(self.app))
+            return
 
         match = CLASS_START_RX.match(line)
         if match is None:
-            return None
+            return
 
         print "class %s : public %s {" % (self.classname, match.group(1))
         print "public:"
 
-        return ClassParser()
+        self.app.push_parser(ClassParser(self.app))
 
 
-class ClassParser:
-    def __init__(self):
+class ClassParser(object):
+    def __init__(self, app):
+        self.app = app
         self.signal_section = False
 
     def __call__(self, line):
         if line.startswith("/*"):
             print line
-            return CommentParser(next=self)
+            self.app.push_parser(CommentParser(self.app))
+            return
 
         if line.startswith("{"):
-            return SkipBlockParser()
+            self.app.push_parser(SkipBlockParser(self.app))
+            return
 
         if PROPERTY_SET_RX.match(line):
             if line[-1] == "{":
-                return SkipBlockParser()
-            else:
-                return None
+                self.app.push_parser(SkipBlockParser(self.app))
+            return
 
         match = PROPERTY_DEF_RX.match(line)
         if match is not None:
@@ -54,8 +58,8 @@ class ClassParser:
             value = match.group(3)
             if value is not None:
                 if value.count("{") > value.count("}"):
-                    return SkipBlockParser()
-            return None
+                    self.app.push_parser(SkipBlockParser(self.app))
+            return
 
         match = SIGNAL_DEF_RX.match(line)
         if match is not None:
@@ -68,7 +72,7 @@ class ClassParser:
                 print "Q_SIGNALS:"
                 self.signal_section = True
             print "void %s(%s);" % (name, args)
-            return None
+            return
 
         match = FCN_DEF_RX.match(line)
         if match is not None:
@@ -79,42 +83,61 @@ class ClassParser:
                 self.signal_section = False
             print "void %s(%s);" % (name, args)
             if line.endswith("{"):
-                return SkipBlockParser()
-            else:
-                return None
+                self.app.push_parser(SkipBlockParser(self.app))
+            return
 
         # Start of a block
         if len(line) > 0 and line[-1] == "{":
-            return SkipBlockParser()
+            self.app.push_parser(SkipBlockParser(self.app))
 
         print line
-        return None
+        return
 
 
-class CommentParser:
-    def __init__(self, next=None):
-        assert next
-        self.next = next
+class CommentParser(object):
+    def __init__(self, app):
+        self.app = app
 
     def __call__(self, line):
         print line
         if line.endswith("*/"):
-            return self.next
-        else:
-            return None
+            self.app.pop_parser()
 
 
-class SkipBlockParser:
-    def __init__(self):
+class SkipBlockParser(object):
+    def __init__(self, app):
+        self.app = app
         self.count = 1
 
     def __call__(self, line):
         self.count += line.count("{")
         self.count -= line.count("}")
         if self.count == 0:
-            return ClassParser()
-        else:
-            return None
+            self.app.pop_parser()
+
+
+class App(object):
+    def __init__(self, options):
+        self.options = options
+        self.parsers = []
+
+    def parse(self, name):
+        classname = os.path.basename(name).split(".")[0]
+        self.push_parser(HeaderParser(self, classname))
+
+        for num, line in enumerate(open(name).readlines()):
+            parser = self.parsers[-1]
+            if self.options.debug:
+                parser_name = parser.__class__.__name__
+                print >>sys.stderr, "%20s:%4d %s" % (parser_name, num, line.rstrip())
+            parser(line.strip())
+        print ";"
+
+    def push_parser(self, parser):
+        self.parsers.append(parser)
+
+    def pop_parser(self):
+        self.parsers.pop()
 
 
 def main():
@@ -125,18 +148,8 @@ def main():
     (options, args) = parser.parse_args()
     name = args[0]
 
-    classname = os.path.basename(name).split(".")[0]
-
-    parser = HeaderParser(classname)
-    for num, line in enumerate(open(name).readlines()):
-        if options.debug:
-            parser_name = parser.__class__.__name__
-            print >>sys.stderr, "%20s:%4d %s" % (parser_name, num, line.rstrip())
-        new_parser = parser(line.strip())
-        if new_parser is not None:
-            parser = new_parser
-    print ";"
-
+    app = App(options)
+    app.parse(name)
     return 0
 
 
