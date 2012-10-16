@@ -42,6 +42,7 @@ class ClassParser(object):
             return
 
         if line.startswith("{"):
+            # A function or block with an opening brace on its own line
             self.app.push_parser(SkipBlockParser())
             return
 
