@@ -108,7 +108,7 @@ EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       =
 EXAMPLE_RECURSIVE      = NO
 IMAGE_PATH             =
-INPUT_FILTER           = doxyqml
+INPUT_FILTER           =
 FILTER_PATTERNS        = *.qml=doxyqml
 FILTER_SOURCE_FILES    = NO
 FILTER_SOURCE_PATTERNS =
