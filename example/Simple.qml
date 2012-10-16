@@ -7,4 +7,12 @@ Item {
     function doSomething(arg1, arg2) {
         console.log("arg1=" + arg1);
     }
+
+    /**
+     * Compute the arg^2
+     * @return int
+     */
+    function square(arg) {
+        return arg * arg;
+    }
 }
