@@ -6,7 +6,7 @@ import sys
 from optparse import OptionParser
 
 
-class TokenizerError(Exception):
+class LexerError(Exception):
     pass
 
 
@@ -19,21 +19,20 @@ CHAR = "char"
 KEYWORD = "keyword"
 
 
-class BasicTokenizer(object):
+class Tokenizer(object):
     def __init__(self, token_type, rx):
         self.token_type = token_type
         self.rx = rx
 
-    def __call__(self, tokenizer, match):
-        tokenizer.append_token(self.token_type, match.group(0))
+    def __call__(self, lexer, match):
+        lexer.append_token(self.token_type, match.group(0))
 
 
-class Tokenizer(object):
+class Lexer(object):
     def __init__(self, options):
         self.options = options
         self.text = ""
         self.idx = 0
-        self.classname = ""
         self.tokens = []
 
     def coord_for_idx(self):
@@ -45,9 +44,7 @@ class Tokenizer(object):
         col = len(tail) + 1
         return row, col
 
-    def start(self, name):
-        self.classname = os.path.basename(name).split(".")[0]
-
+    def tokenize(self, name):
         self.text = open(name).read()
         while True:
             self.advance()
@@ -55,24 +52,24 @@ class Tokenizer(object):
                 break
             try:
                 self.apply_tokenizers([
-                    BasicTokenizer(COMMENT, re.compile(r"/\*.*?\*/", re.DOTALL)),
-                    BasicTokenizer(COMMENT, re.compile(r"//.*$", re.MULTILINE)),
-                    BasicTokenizer(STRING, re.compile(r'("([^\\"]|(\\.))*")')),
-                    BasicTokenizer(BLOCK_START, re.compile("{")),
-                    BasicTokenizer(BLOCK_END, re.compile("}")),
-                    BasicTokenizer(KEYWORD, re.compile("(property|function|signal)")),
-                    BasicTokenizer(ELEMENT, re.compile("\w+")),
-                    BasicTokenizer(CHAR, re.compile(".")),
+                    Tokenizer(COMMENT, re.compile(r"/\*.*?\*/", re.DOTALL)),
+                    Tokenizer(COMMENT, re.compile(r"//.*$", re.MULTILINE)),
+                    Tokenizer(STRING, re.compile(r'("([^\\"]|(\\.))*")')),
+                    Tokenizer(BLOCK_START, re.compile("{")),
+                    Tokenizer(BLOCK_END, re.compile("}")),
+                    Tokenizer(KEYWORD, re.compile("(property|function|signal)")),
+                    Tokenizer(ELEMENT, re.compile("\w+")),
+                    Tokenizer(CHAR, re.compile(".")),
                     ])
 
-            except TokenizerError, exc:
+            except LexerError, exc:
                 row, col = self.coord_for_idx()
                 bol = self.text.rfind("\n", 0, self.idx)
                 if bol == -1:
                     bol = 0
                 eol = self.text.find("\n", self.idx)
                 msg = self.text[bol:eol] + "\n" + "-" * (col - 1) + "^"
-                logging.error("Tokenizer error line %d: %s\n%s", row, exc, msg)
+                logging.error("Lexer error line %d: %s\n%s", row, exc, msg)
                 return False
         return True
 
@@ -86,13 +83,13 @@ class Tokenizer(object):
 
 
     def apply_tokenizers(self, lst):
-        for tokenizer in lst:
-            match = tokenizer.rx.match(self.text, self.idx)
+        for lexer in lst:
+            match = lexer.rx.match(self.text, self.idx)
             if match:
-                tokenizer(self, match)
+                lexer(self, match)
                 self.idx = match.end(0)
                 return
-        raise TokenizerError("No tokenizer matched")
+        raise LexerError("No lexer matched")
 
 
     def append_token(self, _type, value):
@@ -107,12 +104,14 @@ def main():
     (options, args) = parser.parse_args()
     name = args[0]
 
-    tokenizer = Tokenizer(options)
-    ok = tokenizer.start(name)
+    lexer = Lexer(options)
+    ok = lexer.tokenize(name)
     if not ok:
         return 1
 
-    for type_, value in tokenizer.tokens:
+    classname = os.path.basename(name).split(".")[0]
+
+    for type_, value in lexer.tokens:
         print "#### %s ####" % type_
         print value
     return 0
