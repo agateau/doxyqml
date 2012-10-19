@@ -83,10 +83,13 @@ class Tokenizer(object):
         self.classname = os.path.basename(name).split(".")[0]
 
         self.text = open(name).read()
-        while self.idx < len(self.text):
+        while True:
             self.advance()
+            if self.idx == len(self.text):
+                break
             try:
                 self.apply_tokenizers([MultiLineCommentTokenizer(), CommentTokenizer(), StringTokenizer(), BlockTokenizer(), ElementTokenizer(), CharTokenizer()])
+
             except TokenizerError, exc:
                 row, col = self.coord_for_idx()
                 bol = self.text.rfind("\n", 0, self.idx)
@@ -114,6 +117,7 @@ class Tokenizer(object):
                 tokenizer(self, match)
                 self.idx = match.end(0)
                 return
+        raise TokenizerError("No tokenizer matched")
 
 
     def append_token(self, _type, value):
