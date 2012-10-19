@@ -1,4 +1,15 @@
+/*
+ * Header bla
+ */
+import QtQuick 1.1
+
+/**
+ * A very simple item
+ */
 Item {
+    /**
+     * The 'foo' property
+     */
     property int foo
 
     signal clicked(int x, int y)
@@ -10,6 +21,9 @@ Item {
         console.log("arg1=" + arg1);
     }
 
+    property string escaped: "a string \n \" \t with escaped chars"
+    property string block: "a string with some block {({ ] } chars"
+
     /**
      * Compute the arg^2
      * @return int
@@ -18,9 +32,12 @@ Item {
         return arg * arg;
     }
 
+    /// One-line comment
     function refresh() {
     }
 
     Item {
     }
+
+    property /* foo */ int /* bar */ weirdProperty /* baz */ : /* foo */ 12
 }
