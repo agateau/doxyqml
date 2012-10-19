@@ -8,6 +8,7 @@ BLOCK_START = "block_start"
 BLOCK_END = "block_end"
 CHAR = "char"
 KEYWORD = "keyword"
+IMPORT = "import"
 
 
 class LexerError(Exception):
@@ -31,6 +32,7 @@ class Lexer(object):
             Tokenizer(STRING, re.compile(r'("([^\\"]|(\\.))*")')),
             Tokenizer(BLOCK_START, re.compile("{")),
             Tokenizer(BLOCK_END, re.compile("}")),
+            Tokenizer(IMPORT, re.compile("^import .*$", re.MULTILINE)),
             Tokenizer(KEYWORD, re.compile("(property|function|signal)")),
             Tokenizer(ELEMENT, re.compile("\w+")),
             Tokenizer(CHAR, re.compile(".")),
