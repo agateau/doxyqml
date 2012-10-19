@@ -30,6 +30,16 @@ class Tokenizer(object):
 
 class Lexer(object):
     def __init__(self, options):
+        self.tokenizers = [
+            Tokenizer(COMMENT, re.compile(r"/\*.*?\*/", re.DOTALL)),
+            Tokenizer(COMMENT, re.compile(r"//.*$", re.MULTILINE)),
+            Tokenizer(STRING, re.compile(r'("([^\\"]|(\\.))*")')),
+            Tokenizer(BLOCK_START, re.compile("{")),
+            Tokenizer(BLOCK_END, re.compile("}")),
+            Tokenizer(KEYWORD, re.compile("(property|function|signal)")),
+            Tokenizer(ELEMENT, re.compile("\w+")),
+            Tokenizer(CHAR, re.compile(".")),
+            ]
         self.options = options
         self.text = ""
         self.idx = 0
@@ -44,6 +54,7 @@ class Lexer(object):
         col = len(tail) + 1
         return row, col
 
+
     def tokenize(self, name):
         self.text = open(name).read()
         while True:
@@ -51,17 +62,7 @@ class Lexer(object):
             if self.idx == len(self.text):
                 break
             try:
-                self.apply_tokenizers([
-                    Tokenizer(COMMENT, re.compile(r"/\*.*?\*/", re.DOTALL)),
-                    Tokenizer(COMMENT, re.compile(r"//.*$", re.MULTILINE)),
-                    Tokenizer(STRING, re.compile(r'("([^\\"]|(\\.))*")')),
-                    Tokenizer(BLOCK_START, re.compile("{")),
-                    Tokenizer(BLOCK_END, re.compile("}")),
-                    Tokenizer(KEYWORD, re.compile("(property|function|signal)")),
-                    Tokenizer(ELEMENT, re.compile("\w+")),
-                    Tokenizer(CHAR, re.compile(".")),
-                    ])
-
+                self.apply_tokenizers()
             except LexerError, exc:
                 row, col = self.coord_for_idx()
                 bol = self.text.rfind("\n", 0, self.idx)
@@ -82,11 +83,11 @@ class Lexer(object):
                 break
 
 
-    def apply_tokenizers(self, lst):
-        for lexer in lst:
-            match = lexer.rx.match(self.text, self.idx)
+    def apply_tokenizers(self):
+        for tokenizer in self.tokenizers:
+            match = tokenizer.rx.match(self.text, self.idx)
             if match:
-                lexer(self, match)
+                tokenizer(self, match)
                 self.idx = match.end(0)
                 return
         raise LexerError("No lexer matched")
