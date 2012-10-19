@@ -19,46 +19,30 @@ CHAR = "char"
 
 
 class MultiLineCommentTokenizer(object):
-    rx = re.compile(r'/\*')
+    rx = re.compile(r'/\*.*?\*/', re.DOTALL)
 
-    _end_rx = re.compile(r'.*?\*/', re.DOTALL)
-
-    def __call__(self, tokenizer):
-        match = tokenizer.match(self._end_rx)
-        if not match:
-            raise Tokenizer("Missing closing */ for comment")
+    def __call__(self, tokenizer, match):
         tokenizer.append_token(COMMENT, match.group(0))
 
 
 class CommentTokenizer(object):
-    rx = re.compile(r'//')
+    rx = re.compile(r'//.*$', re.MULTILINE)
 
-    _end_rx = re.compile(r'//.*$', re.MULTILINE)
-
-    def __call__(self, tokenizer):
-        match = tokenizer.match(self._end_rx)
-        assert match
+    def __call__(self, tokenizer, match):
         tokenizer.append_token(COMMENT, match.group(0))
 
 
 class StringTokenizer(object):
-    rx = re.compile(r'"')
+    rx = re.compile(r'("([^\\"]|(\\.))*")')
 
-    _end_rx = re.compile(r'("([^\\"]|(\\.))*")')
-
-    def __call__(self, tokenizer):
-        match = tokenizer.match(self._end_rx)
-        if not match:
-            raise TokenizerError("Missing closing '\"' for string")
+    def __call__(self, tokenizer, match):
         tokenizer.append_token(STRING, match.group(0))
 
 
 class BlockTokenizer(object):
     rx = re.compile(r'[{}]')
 
-    def __call__(self, tokenizer):
-        match = tokenizer.match(self.rx)
-        assert match
+    def __call__(self, tokenizer, match):
         value = match.group(0)
         _type = value == "{" and BLOCK_START or BLOCK_END
         tokenizer.append_token(_type, value)
@@ -67,18 +51,14 @@ class BlockTokenizer(object):
 class CharTokenizer(object):
     rx = re.compile(r'.')
 
-    def __call__(self, tokenizer):
-        match = tokenizer.match(self.rx)
-        assert match
+    def __call__(self, tokenizer, match):
         tokenizer.append_token(CHAR, match.group(0))
 
 
 class ElementTokenizer(object):
     rx = re.compile("[\w]+")
 
-    def __call__(self, tokenizer):
-        match = tokenizer.match(self.rx)
-        assert match
+    def __call__(self, tokenizer, match):
         tokenizer.append_token(ELEMENT, match.group(0))
 
 
@@ -131,18 +111,13 @@ class Tokenizer(object):
         for tokenizer in lst:
             match = tokenizer.rx.match(self.text, self.idx)
             if match:
-                tokenizer(self)
+                tokenizer(self, match)
+                self.idx = match.end(0)
                 return
 
 
     def append_token(self, _type, value):
         self.tokens.append((_type, value))
-
-    def match(self, rx):
-        match = rx.match(self.text, self.idx)
-        if match:
-            self.idx = match.end(0)
-        return match
 
 
 def main():
