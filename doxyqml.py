@@ -16,50 +16,16 @@ ELEMENT = "element"
 BLOCK_START = "block_start"
 BLOCK_END = "block_end"
 CHAR = "char"
+KEYWORD = "keyword"
 
 
-class MultiLineCommentTokenizer(object):
-    rx = re.compile(r'/\*.*?\*/', re.DOTALL)
-
-    def __call__(self, tokenizer, match):
-        tokenizer.append_token(COMMENT, match.group(0))
-
-
-class CommentTokenizer(object):
-    rx = re.compile(r'//.*$', re.MULTILINE)
+class BasicTokenizer(object):
+    def __init__(self, token_type, rx):
+        self.token_type = token_type
+        self.rx = rx
 
     def __call__(self, tokenizer, match):
-        tokenizer.append_token(COMMENT, match.group(0))
-
-
-class StringTokenizer(object):
-    rx = re.compile(r'("([^\\"]|(\\.))*")')
-
-    def __call__(self, tokenizer, match):
-        tokenizer.append_token(STRING, match.group(0))
-
-
-class BlockTokenizer(object):
-    rx = re.compile(r'[{}]')
-
-    def __call__(self, tokenizer, match):
-        value = match.group(0)
-        _type = value == "{" and BLOCK_START or BLOCK_END
-        tokenizer.append_token(_type, value)
-
-
-class CharTokenizer(object):
-    rx = re.compile(r'.')
-
-    def __call__(self, tokenizer, match):
-        tokenizer.append_token(CHAR, match.group(0))
-
-
-class ElementTokenizer(object):
-    rx = re.compile("[\w]+")
-
-    def __call__(self, tokenizer, match):
-        tokenizer.append_token(ELEMENT, match.group(0))
+        tokenizer.append_token(self.token_type, match.group(0))
 
 
 class Tokenizer(object):
@@ -88,7 +54,16 @@ class Tokenizer(object):
             if self.idx == len(self.text):
                 break
             try:
-                self.apply_tokenizers([MultiLineCommentTokenizer(), CommentTokenizer(), StringTokenizer(), BlockTokenizer(), ElementTokenizer(), CharTokenizer()])
+                self.apply_tokenizers([
+                    BasicTokenizer(COMMENT, re.compile(r"/\*.*?\*/", re.DOTALL)),
+                    BasicTokenizer(COMMENT, re.compile(r"//.*$", re.MULTILINE)),
+                    BasicTokenizer(STRING, re.compile(r'("([^\\"]|(\\.))*")')),
+                    BasicTokenizer(BLOCK_START, re.compile("{")),
+                    BasicTokenizer(BLOCK_END, re.compile("}")),
+                    BasicTokenizer(KEYWORD, re.compile("(property|function|signal)")),
+                    BasicTokenizer(ELEMENT, re.compile("\w+")),
+                    BasicTokenizer(CHAR, re.compile(".")),
+                    ])
 
             except TokenizerError, exc:
                 row, col = self.coord_for_idx()

@@ -25,9 +25,12 @@ Item {
         return arg * arg;
     }
 
+    /// One-line comment
     function refresh() {
     }
 
     Item {
     }
+
+    property /* foo */ int /* bar */ weirdProperty /* baz */ : /* foo */ 12
 }
