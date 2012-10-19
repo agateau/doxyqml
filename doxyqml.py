@@ -4,7 +4,7 @@ import os
 import sys
 from optparse import OptionParser
 
-
+from qmlclass import QmlClass, fill_qml_class
 from lexer import Lexer
 
 
@@ -22,11 +22,22 @@ def main():
     if not ok:
         return 1
 
-    classname = os.path.basename(name).split(".")[0]
+    if options.debug:
+        for type_, value in lexer.tokens:
+            print "#### %s ####" % type_
+            print value
 
-    for type_, value in lexer.tokens:
-        print "#### %s ####" % type_
-        print value
+    classname = os.path.basename(name).split(".")[0]
+    qml_class = QmlClass(classname)
+
+    try:
+        fill_qml_class(qml_class, lexer.tokens)
+    except:
+        logging.error("Failed to parse %s" % name)
+        raise
+
+    print qml_class
+
     return 0
 
 

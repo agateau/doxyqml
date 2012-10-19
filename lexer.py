@@ -1,3 +1,4 @@
+from collections import namedtuple
 import re
 
 
@@ -13,6 +14,9 @@ IMPORT = "import"
 
 class LexerError(Exception):
     pass
+
+
+Token = namedtuple("Token", ["type", "value", "row", "col"])
 
 
 class Tokenizer(object):
@@ -34,7 +38,7 @@ class Lexer(object):
             Tokenizer(BLOCK_END, re.compile("}")),
             Tokenizer(IMPORT, re.compile("^import .*$", re.MULTILINE)),
             Tokenizer(KEYWORD, re.compile("(property|function|signal)")),
-            Tokenizer(ELEMENT, re.compile("\w+")),
+            Tokenizer(ELEMENT, re.compile(r"\w[\w.]*")),
             Tokenizer(CHAR, re.compile(".")),
             ]
         self.options = options
@@ -90,5 +94,6 @@ class Lexer(object):
         raise LexerError("No lexer matched")
 
 
-    def append_token(self, _type, value):
-        self.tokens.append((_type, value))
+    def append_token(self, type, value):
+        row, col = self.coord_for_idx()
+        self.tokens.append(Token(type, value, row, col))
