@@ -38,7 +38,7 @@ class Lexer(object):
             Tokenizer(BLOCK_END, re.compile("}")),
             Tokenizer(IMPORT, re.compile("^import .*$", re.MULTILINE)),
             Tokenizer(KEYWORD, re.compile("(property|function|signal)")),
-            Tokenizer(ELEMENT, re.compile(r"\w[\w.]*")),
+            Tokenizer(ELEMENT, re.compile(r"\w[\w.<>]*")),
             Tokenizer(CHAR, re.compile(".")),
             ]
         self.options = options
