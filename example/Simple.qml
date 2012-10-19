@@ -1,3 +1,7 @@
+/**
+ * A very simple item
+ */
+
 Item {
     property int foo
 
@@ -9,6 +13,9 @@ Item {
     function doSomething(arg1, arg2) {
         console.log("arg1=" + arg1);
     }
+
+    property string escaped: "a string \n \" \t with escaped chars"
+    property string block: "a string with some block {({ ] } chars"
 
     /**
      * Compute the arg^2

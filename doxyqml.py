@@ -1,139 +1,148 @@
 #!/usr/bin/env python
+import logging
 import os
 import re
 import sys
 from optparse import OptionParser
 
-CLASS_START_RX = re.compile("([a-zA-Z]+) {")
-PROPERTY_SET_RX = re.compile("([\w.]+):")
-PROPERTY_DEF_RX = re.compile("property (\w+) +(\w+) *(:.*)?")
-SIGNAL_DEF_RX = re.compile("signal (\w+)( *\((?P<args>.*)\))?")
-FCN_DEF_RX = re.compile("function (\w+) *\((?P<args>.*)\)")
+
+class TokenizerError(Exception):
+    pass
 
 
-class HeaderParser(object):
-    def __init__(self, classname):
-        self.classname = classname
-
-    def __call__(self, line):
-        if line.startswith("/*"):
-            print line
-            self.app.push_parser(CommentParser())
-            return
-
-        match = CLASS_START_RX.match(line)
-        if match is None:
-            return
-
-        print "class %s : public %s {" % (self.classname, match.group(1))
-        print "public:"
-
-        self.app.push_parser(ClassParser())
+COMMENT = "comment"
+STRING = "string"
+ELEMENT = "element"
+BLOCK_START = "block_start"
+BLOCK_END = "block_end"
+CHAR = "char"
 
 
-class ClassParser(object):
-    def __init__(self):
-        self.signal_section = False
+class MultiLineCommentTokenizer(object):
+    rx = re.compile(r'/\*')
 
-    def __call__(self, line):
-        if line.startswith("/*"):
-            print line
-            self.app.push_parser(CommentParser())
-            return
+    _end_rx = re.compile(r'.*?\*/', re.DOTALL)
 
-        if line.startswith("{"):
-            # A function or block with an opening brace on its own line
-            self.app.push_parser(SkipBlockParser())
-            return
-
-        if PROPERTY_SET_RX.match(line):
-            if line[-1] == "{":
-                self.app.push_parser(SkipBlockParser())
-            return
-
-        match = PROPERTY_DEF_RX.match(line)
-        if match is not None:
-            print "Q_PROPERTY(%s %s)" % (match.group(1), match.group(2))
-            value = match.group(3)
-            if value is not None:
-                if value.count("{") > value.count("}"):
-                    self.app.push_parser(SkipBlockParser())
-            return
-
-        match = SIGNAL_DEF_RX.match(line)
-        if match is not None:
-            name = match.group(1)
-            if match.group("args"):
-                args = match.group("args")
-            else:
-                args = ""
-            if not self.signal_section:
-                print "Q_SIGNALS:"
-                self.signal_section = True
-            print "void %s(%s);" % (name, args)
-            return
-
-        match = FCN_DEF_RX.match(line)
-        if match is not None:
-            name = match.group(1)
-            args = match.group("args")
-            if self.signal_section:
-                print "public:"
-                self.signal_section = False
-            print "void %s(%s);" % (name, args)
-            if line.endswith("{"):
-                self.app.push_parser(SkipBlockParser())
-            return
-
-        # Start of a block
-        if len(line) > 0 and line[-1] == "{":
-            self.app.push_parser(SkipBlockParser())
-            return
-
-        print line
+    def __call__(self, tokenizer):
+        match = tokenizer.match(self._end_rx)
+        if not match:
+            raise Tokenizer("Missing closing */ for comment")
+        tokenizer.append_token(COMMENT, match.group(0))
 
 
-class CommentParser(object):
-    def __call__(self, line):
-        print line
-        if line.endswith("*/"):
-            self.app.pop_parser()
+class CommentTokenizer(object):
+    rx = re.compile(r'//')
+
+    _end_rx = re.compile(r'//.*$', re.MULTILINE)
+
+    def __call__(self, tokenizer):
+        match = tokenizer.match(self._end_rx)
+        assert match
+        tokenizer.append_token(COMMENT, match.group(0))
 
 
-class SkipBlockParser(object):
-    def __init__(self):
-        self.count = 1
+class StringTokenizer(object):
+    rx = re.compile(r'"')
 
-    def __call__(self, line):
-        self.count += line.count("{")
-        self.count -= line.count("}")
-        if self.count == 0:
-            self.app.pop_parser()
+    _end_rx = re.compile(r'("([^\\"]|(\\.))*")')
+
+    def __call__(self, tokenizer):
+        match = tokenizer.match(self._end_rx)
+        if not match:
+            raise TokenizerError("Missing closing '\"' for string")
+        tokenizer.append_token(STRING, match.group(0))
 
 
-class App(object):
+class BlockTokenizer(object):
+    rx = re.compile(r'[{}]')
+
+    def __call__(self, tokenizer):
+        match = tokenizer.match(self.rx)
+        assert match
+        value = match.group(0)
+        _type = value == "{" and BLOCK_START or BLOCK_END
+        tokenizer.append_token(_type, value)
+
+
+class CharTokenizer(object):
+    rx = re.compile(r'.')
+
+    def __call__(self, tokenizer):
+        match = tokenizer.match(self.rx)
+        assert match
+        tokenizer.append_token(CHAR, match.group(0))
+
+
+class ElementTokenizer(object):
+    rx = re.compile("[\w]+")
+
+    def __call__(self, tokenizer):
+        match = tokenizer.match(self.rx)
+        assert match
+        tokenizer.append_token(ELEMENT, match.group(0))
+
+
+class Tokenizer(object):
     def __init__(self, options):
         self.options = options
-        self.parsers = []
+        self.text = ""
+        self.idx = 0
+        self.classname = ""
+        self.tokens = []
 
-    def parse(self, name):
-        classname = os.path.basename(name).split(".")[0]
-        self.push_parser(HeaderParser(classname))
+    def coord_for_idx(self):
+        head, sep, tail = self.text[:self.idx].rpartition("\n")
+        if sep == "\n":
+            row = head.count("\n") + 2
+        else:
+            row = 1
+        col = len(tail) + 1
+        return row, col
 
-        for num, line in enumerate(open(name).readlines()):
-            parser = self.parsers[-1]
-            if self.options.debug:
-                parser_name = parser.__class__.__name__
-                print >>sys.stderr, "%20s:%4d %s" % (parser_name, num, line.rstrip())
-            parser(line.strip())
-        print ";"
+    def start(self, name):
+        self.classname = os.path.basename(name).split(".")[0]
 
-    def push_parser(self, parser):
-        parser.app = self
-        self.parsers.append(parser)
+        self.text = open(name).read()
+        while self.idx < len(self.text):
+            self.advance()
+            try:
+                self.apply_tokenizers([MultiLineCommentTokenizer(), CommentTokenizer(), StringTokenizer(), BlockTokenizer(), ElementTokenizer(), CharTokenizer()])
+            except TokenizerError, exc:
+                row, col = self.coord_for_idx()
+                bol = self.text.rfind("\n", 0, self.idx)
+                if bol == -1:
+                    bol = 0
+                eol = self.text.find("\n", self.idx)
+                msg = self.text[bol:eol] + "\n" + "-" * (col - 1) + "^"
+                logging.error("Tokenizer error line %d: %s\n%s", row, exc, msg)
+                return False
+        return True
 
-    def pop_parser(self):
-        self.parsers.pop()
+
+    def advance(self):
+        while self.idx < len(self.text):
+            if self.text[self.idx].isspace():
+                self.idx += 1
+            else:
+                break
+
+
+    def apply_tokenizers(self, lst):
+        for tokenizer in lst:
+            match = tokenizer.rx.match(self.text, self.idx)
+            if match:
+                tokenizer(self)
+                return
+
+
+    def append_token(self, _type, value):
+        self.tokens.append((_type, value))
+
+    def match(self, rx):
+        match = rx.match(self.text, self.idx)
+        if match:
+            self.idx = match.end(0)
+        return match
 
 
 def main():
@@ -144,8 +153,14 @@ def main():
     (options, args) = parser.parse_args()
     name = args[0]
 
-    app = App(options)
-    app.parse(name)
+    tokenizer = Tokenizer(options)
+    ok = tokenizer.start(name)
+    if not ok:
+        return 1
+
+    for type_, value in tokenizer.tokens:
+        print "#### %s ####" % type_
+        print value
     return 0
 
 
