@@ -33,17 +33,21 @@ def info_for_error_at(text, idx):
     return row, msg
 
 
-def main():
+def parse_cmdline():
     parser = OptionParser("usage: %prog [options] <path/to/File.qml>")
     parser.add_option("-d", "--debug",
                       action="store_true", dest="debug", default=False,
                       help="Log debug info to stderr")
-    (options, args) = parser.parse_args()
+    return parser.parse_args()
+
+
+def main():
+    options, args = parse_cmdline()
     name = args[0]
 
-    lexer = Lexer(options)
     text = open(name).read()
 
+    lexer = Lexer()
     try:
         lexer.tokenize(text)
     except LexerError, exc:

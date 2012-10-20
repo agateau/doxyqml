@@ -31,7 +31,7 @@ class Tokenizer(object):
 
 
 class Lexer(object):
-    def __init__(self, options):
+    def __init__(self):
         self.tokenizers = [
             Tokenizer(COMMENT, re.compile(r"/\*.*?\*/", re.DOTALL)),
             Tokenizer(COMMENT, re.compile(r"//.*$", re.MULTILINE)),
@@ -43,7 +43,6 @@ class Lexer(object):
             Tokenizer(ELEMENT, re.compile(r"\w[\w.<>]*")),
             Tokenizer(CHAR, re.compile(".")),
             ]
-        self.options = options
         self.text = ""
         self.idx = 0
         self.tokens = []
