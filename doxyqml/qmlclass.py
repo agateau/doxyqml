@@ -41,26 +41,27 @@ class QmlProperty(object):
         self.type = ""
         self.is_default = False
         self.name = ""
-        self.doc = []
+        self.doc = ""
 
     def __str__(self):
-        lst = self.doc
+        lst = [self.doc]
         lst.append("Q_PROPERTY(%s %s)" % (self.type, self.name))
         return "\n".join(lst)
 
 
 class QmlFunction(object):
-    doc_arg_rx = re.compile("@param ([\w.<>|]+) (\w+)")
+    doc_arg_rx = re.compile("@param\s+" + TYPE_PREFIX_RX + "(" + TYPE_RX + ")\s+(\w+)")
+    return_rx = re.compile("@return\s+(" + TYPE_PREFIX_RX + "(" + TYPE_RX + ")\s*)")
     def __init__(self):
         self.type = "void"
         self.name = ""
-        self.doc = []
+        self.doc = ""
         self.args = []
 
     def __str__(self):
         self.post_process_doc()
         arg_string = ", ".join([str(x) for x in self.args])
-        lst = self.doc
+        lst = [self.doc]
         lst.append("%s %s(%s);" % (self.type, self.name, arg_string))
         return "\n".join(lst)
 
@@ -74,17 +75,18 @@ class QmlFunction(object):
                     return "@param %s" % name
             return match.group(0)
 
+        self.doc = self.doc_arg_rx.sub(repl, self.doc)
         self.doc = [self.doc_arg_rx.sub(repl, x) for x in self.doc]
 
 
 class QmlSignal(object):
     def __init__(self):
         self.name = ""
-        self.doc = []
+        self.doc = ""
         self.args = []
 
     def __str__(self):
         arg_string = ", ".join([str(x) for x in self.args])
-        lst = self.doc
+        lst = [self.doc]
         lst.append("void %s(%s);" % (self.name, arg_string))
         return "\n".join(lst)

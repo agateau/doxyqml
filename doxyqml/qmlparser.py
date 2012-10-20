@@ -31,18 +31,20 @@ class ClassParser(object):
                 comments = []
 
     def parse_token(self, main, token, comments):
+        # Should we just use the last comment?
+        doc = "\n".join(comments)
         if token.type == lexer.KEYWORD:
             if token.value == "property":
                 obj = self.parse_property(main)
-                obj.doc = comments
+                obj.doc = doc
                 main.dst.properties.append(obj)
             elif token.value == "function":
                 obj = self.parse_function(main)
-                obj.doc = comments
+                obj.doc = doc
                 main.dst.functions.append(obj)
             elif token.value == "signal":
                 obj = self.parse_signal(main)
-                obj.doc = comments
+                obj.doc = doc
                 main.dst.signals.append(obj)
             else:
                 raise QmlParserError("Unknown keyword '%s'" % token.value, token)

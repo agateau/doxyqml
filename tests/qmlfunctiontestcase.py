@@ -10,7 +10,7 @@ class QmlFunctionTestCase(TestCase):
             QmlArgument("lastname"),
             QmlArgument("age"),
             ]
-        fcn.doc = ["""
+        fcn.doc = """
         /**
          * Create a user
          *
@@ -18,7 +18,7 @@ class QmlFunctionTestCase(TestCase):
          * @param string lastname The user lastname
          * @param int age The user age
          */
-         """]
+         """
 
         fcn.post_process_doc()
 
@@ -26,7 +26,7 @@ class QmlFunctionTestCase(TestCase):
         self.assertEqual(fcn.args[1].type, "string")
         self.assertEqual(fcn.args[2].type, "int")
 
-        self.assertMultiLineEqual(fcn.doc[0], """
+        self.assertMultiLineEqual(fcn.doc, """
         /**
          * Create a user
          *
