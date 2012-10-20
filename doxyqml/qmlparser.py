@@ -3,7 +3,7 @@ import lexer
 from qmlclass import QmlArgument, QmlProperty, QmlFunction, QmlSignal
 
 
-class ParserError(Exception):
+class QmlParserError(Exception):
     def __init__(self, msg, token):
         Exception.__init__(self, msg)
         self.token = token
@@ -27,7 +27,7 @@ class ClassParser(object):
     def parse(self, main):
         token = main.consume_wo_comments()
         if token.type != lexer.BLOCK_START:
-            raise ParserError("Expected '{' after base class name", token)
+            raise QmlParserError("Expected '{' after base class name", token)
         comments = []
         while not main.at_end():
             token = main.consume()
@@ -54,7 +54,7 @@ class ClassParser(object):
                 obj.doc = comments
                 main.dst.signals.append(obj)
             else:
-                raise ParserError("Unknown keyword '%s'" % token.value, token)
+                raise QmlParserError("Unknown keyword '%s'" % token.value, token)
 
         elif token.type == lexer.BLOCK_START:
             main.push(SkipBlockParser())
@@ -94,7 +94,7 @@ class ClassParser(object):
         if token.type == lexer.CHAR and token.value == ")":
             return []
         elif token.type != lexer.ELEMENT:
-            raise ParserError("Unxpected token %s" % token, token)
+            raise QmlParserError("Unxpected token %s" % token, token)
 
         args = []
         while True:
@@ -111,7 +111,7 @@ class ClassParser(object):
             if token.value == ")":
                 return args
             elif token.value != ",":
-                raise ParserError("Unxpected token %s" % token, token)
+                raise QmlParserError("Unxpected token %s" % token, token)
 
             token = main.consume_expecting(lexer.ELEMENT)
 
@@ -143,10 +143,10 @@ class HeaderParser(object):
                 main.push(ClassParser())
                 return
             else:
-                raise ParserError("Unexpected token: %s" % token, token)
+                raise QmlParserError("Unexpected token: %s" % token, token)
 
 
-class Parser(object):
+class QmlParser(object):
     def __init__(self, dst, tokens):
         self.dst = dst
         self.tokens = tokens
@@ -167,9 +167,9 @@ class Parser(object):
     def consume_expecting(self, type, value=None):
         token = self.consume_wo_comments()
         if token.type != type:
-            raise ParserError("Expected token of type '%s', got '%s' instead" % (type, token.type), token)
+            raise QmlParserError("Expected token of type '%s', got '%s' instead" % (type, token.type), token)
         if value is not None and token.value != value:
-            raise ParserError("Expected token with value '%s', got '%s' instead" % (value, token.value), token)
+            raise QmlParserError("Expected token with value '%s', got '%s' instead" % (value, token.value), token)
         return token
 
     def at_end(self):
