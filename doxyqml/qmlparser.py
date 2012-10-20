@@ -9,6 +9,11 @@ class QmlParserError(Exception):
         self.token = token
 
 
+class QmlParserUnexpectedTokenError(QmlParserError):
+    def __init__(self, token):
+        QmlParserError.__init__(self, "Unexpected token: %s" % str(token), token)
+
+
 class ClassParser(object):
     def parse(self, main):
         token = main.consume_wo_comments()
@@ -80,7 +85,7 @@ class ClassParser(object):
         if token.type == lexer.CHAR and token.value == ")":
             return []
         elif token.type != lexer.ELEMENT:
-            raise QmlParserError("Unxpected token %s" % token, token)
+            raise QmlParserUnexpectedTokenError(token)
 
         args = []
         while True:
@@ -97,7 +102,7 @@ class ClassParser(object):
             if token.value == ")":
                 return args
             elif token.value != ",":
-                raise QmlParserError("Unxpected token %s" % token, token)
+                raise QmlParserUnexpectedTokenError(token)
 
             token = main.consume_expecting(lexer.ELEMENT)
 
@@ -141,7 +146,7 @@ class HeaderParser(object):
                 main.push(ClassParser())
                 return
             else:
-                raise QmlParserError("Unexpected token: %s" % token, token)
+                raise QmlParserUnexpectedTokenError(token)
 
 
 class QmlParser(object):
