@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from qmlclass import QmlFunction, QmlArgument
+from qmlclass import QmlFunction, QmlArgument, QmlProperty
 
 class QmlFunctionTestCase(TestCase):
     def test_post_process_doc(self):
@@ -42,3 +42,14 @@ class QmlFunctionTestCase(TestCase):
          * @return A new user
          */
          """)
+
+class QmlPropertyTestCase(TestCase):
+    def test_property_type(self):
+        prop = QmlProperty()
+        prop.doc = "/// type:User The current user"
+        prop.type = "alias"
+
+        prop.post_process_doc()
+
+        self.assertEqual(prop.type, "User")
+        self.assertEqual(prop.doc, "/// The current user")

@@ -27,6 +27,8 @@ Item {
 
     //- Defined by outside world -----------------------------------
     property QtObject sourceRegistry
+
+    /// type:list<string> SourceIds used for this page
     property variant sources
     property bool configureMode
 

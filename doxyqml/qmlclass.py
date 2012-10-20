@@ -45,6 +45,7 @@ class QmlArgument(object):
 
 
 class QmlProperty(object):
+    type_rx = re.compile(TYPE_RX)
     def __init__(self):
         self.type = ""
         self.is_default = False
@@ -52,9 +53,13 @@ class QmlProperty(object):
         self.doc = ""
 
     def __str__(self):
+        self.post_process_doc()
         lst = [self.doc]
         lst.append("Q_PROPERTY(%s %s)" % (self.type, self.name))
         return "\n".join(lst)
+
+    def post_process_doc(self):
+        self.doc, self.type = post_process_type(self.type_rx, self.doc, self.type)
 
 
 class QmlFunction(object):
