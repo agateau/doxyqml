@@ -53,3 +53,13 @@ class QmlPropertyTestCase(TestCase):
 
         self.assertEqual(prop.type, "User")
         self.assertEqual(prop.doc, "/// The current user")
+
+    def test_no_property_type(self):
+        prop = QmlProperty()
+        prop.doc = "/// The user age"
+        prop.type = "int"
+
+        prop.post_process_doc()
+
+        self.assertEqual(prop.type, "int")
+        self.assertEqual(prop.doc, "/// The user age")
