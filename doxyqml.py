@@ -47,9 +47,9 @@ def main():
         logging.error("Lexer error line %d: %s\n%s", row, exc, msg)
 
     if options.debug:
-        for type_, value in lexer.tokens:
-            print "#### %s ####" % type_
-            print value
+        for token in lexer.tokens:
+            print "## type=%s ####" % token.type
+            print token.value
 
     classname = os.path.basename(name).split(".")[0]
     qml_class = QmlClass(classname)
