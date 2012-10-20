@@ -26,6 +26,13 @@ def line_for_idx(text, idx):
     return text[bol:eol]
 
 
+def info_for_error_at(text, idx):
+    row, col = coord_for_idx(text, idx)
+    line = line_for_idx(text, idx)
+    msg = line + "\n" + "-" * (col - 1) + "^"
+    return row, msg
+
+
 def main():
     parser = OptionParser("usage: %prog [options] <path/to/File.qml>")
     parser.add_option("-d", "--debug",
@@ -41,9 +48,7 @@ def main():
         lexer.tokenize(text)
     except LexerError, exc:
         logging.error("Failed to tokenize %s" % name)
-        row, col = coord_for_idx(text, exc.idx)
-        line = line_for_idx(text, exc.idx)
-        msg = line + "\n" + "-" * (col - 1) + "^"
+        row, msg = info_for_error_at(text, exc.idx)
         logging.error("Lexer error line %d: %s\n%s", row, exc, msg)
         if options.debug:
             raise
@@ -62,9 +67,7 @@ def main():
         fill_qml_class(qml_class, lexer.tokens)
     except ParserError, exc:
         logging.error("Failed to parse %s" % name)
-        row, col = coord_for_idx(text, exc.token.idx)
-        line = line_for_idx(text, exc.token.idx)
-        msg = line + "\n" + "-" * (col - 1) + "^"
+        row, msg = info_for_error_at(text, exc.token.idx)
         logging.error("Lexer error line %d: %s\n%s", row, exc, msg)
         if options.debug:
             raise
