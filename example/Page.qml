@@ -377,6 +377,12 @@ Item {
         return model;
     }
 
+    /**
+     * Create a view from a model
+     * 
+     * @param QAbstractItemModel model the model to show in the view
+     * @param Item parent the item which will be the parent of the view
+     */
     function createView(model, parent) {
         var isMultiViewModel = "modelForRow" in model;
         var modelNeedsFiltering = !("query" in model);

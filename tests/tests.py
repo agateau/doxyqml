@@ -4,6 +4,7 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, "doxyqml"))
 
+from parsertestcase import ParserTestCase
 from qmlfunctiontestcase import QmlFunctionTestCase
 
 def main():

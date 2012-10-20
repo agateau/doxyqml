@@ -1,3 +1,6 @@
+import re
+
+
 class QmlClass(object):
     def __init__(self, name):
         self.name = name
@@ -47,6 +50,7 @@ class QmlProperty(object):
 
 
 class QmlFunction(object):
+    doc_arg_rx = re.compile("@param ([\w.<>|]+) (\w+)")
     def __init__(self):
         self.type = "void"
         self.name = ""
@@ -54,10 +58,23 @@ class QmlFunction(object):
         self.args = []
 
     def __str__(self):
+        self.post_process_doc()
         arg_string = ", ".join([str(x) for x in self.args])
         lst = self.doc
         lst.append("%s %s(%s);" % (self.type, self.name, arg_string))
         return "\n".join(lst)
+
+    def post_process_doc(self):
+        def repl(match):
+            type = match.group(1)
+            name = match.group(2)
+            for arg in self.args:
+                if arg.name == name:
+                    arg.type = type
+                    return "@param %s" % name
+            return match.group(0)
+
+        self.doc = [self.doc_arg_rx.sub(repl, x) for x in self.doc]
 
 
 class QmlSignal(object):
