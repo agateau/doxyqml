@@ -1,13 +1,12 @@
 import re
 
-TYPE_PREFIX_RX = "type\s*:\s*"
-TYPE_RX = "[\w.<>|]+"
+TYPE_RX = "(?P<prefix>\s+type:)(?P<type>[\w.<>|]+)"
 
 def post_process_type(rx, text, type):
     match = rx.search(text)
     if match:
-        type = match.group(2)
-        text = text[:match.start(1)] + text[match.end(1):]
+        type = match.group("type")
+        text = text[:match.start("prefix")] + text[match.end("type"):]
     return text, type
 
 class QmlClass(object):
@@ -59,8 +58,8 @@ class QmlProperty(object):
 
 
 class QmlFunction(object):
-    doc_arg_rx = re.compile("@param\s+" + TYPE_PREFIX_RX + "(" + TYPE_RX + ")\s+(\w+)")
-    return_rx = re.compile("@return\s+(" + TYPE_PREFIX_RX + "(" + TYPE_RX + ")\s*)")
+    doc_arg_rx = re.compile("@param" + TYPE_RX + "\s+(?P<name>\w+)")
+    return_rx = re.compile("@return" + TYPE_RX)
     def __init__(self):
         self.type = "void"
         self.name = ""
@@ -76,8 +75,8 @@ class QmlFunction(object):
 
     def post_process_doc(self):
         def repl(match):
-            type = match.group(1)
-            name = match.group(2)
+            type = match.group("type")
+            name = match.group("name")
             for arg in self.args:
                 if arg.name == name:
                     arg.type = type
