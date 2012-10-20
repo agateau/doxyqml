@@ -45,6 +45,10 @@ def main():
         line = line_for_idx(text, exc.idx)
         msg = line + "\n" + "-" * (col - 1) + "^"
         logging.error("Lexer error line %d: %s\n%s", row, exc, msg)
+        if options.debug:
+            raise
+        else:
+            return -1
 
     if options.debug:
         for token in lexer.tokens:
@@ -62,7 +66,10 @@ def main():
         line = line_for_idx(text, exc.token.idx)
         msg = line + "\n" + "-" * (col - 1) + "^"
         logging.error("Lexer error line %d: %s\n%s", row, exc, msg)
-        raise
+        if options.debug:
+            raise
+        else:
+            return -1
 
     print qml_class
 
