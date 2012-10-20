@@ -4,8 +4,9 @@ import os
 import sys
 from optparse import OptionParser
 
-from qmlclass import QmlClass, fill_qml_class, ParserError
+from qmlclass import QmlClass
 from lexer import Lexer
+from parser import Parser, ParserError
 
 
 def coord_for_idx(text, idx):
@@ -67,8 +68,9 @@ def main():
     classname = os.path.basename(name).split(".")[0]
     qml_class = QmlClass(classname)
 
+    parser = Parser(qml_class, lexer.tokens)
     try:
-        fill_qml_class(qml_class, lexer.tokens)
+        parser.parse()
     except ParserError, exc:
         logging.error("Failed to parse %s" % name)
         row, msg = info_for_error_at(text, exc.token.idx)
