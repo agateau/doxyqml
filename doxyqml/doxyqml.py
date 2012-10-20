@@ -15,8 +15,8 @@ def coord_for_idx(text, idx):
         row = head.count("\n") + 2
     else:
         row = 1
-        col = len(tail) + 1
-        return row, col
+    col = len(tail) + 1
+    return row, col
 
 
 def line_for_idx(text, idx):
