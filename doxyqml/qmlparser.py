@@ -27,7 +27,7 @@ class ClassParser(object):
             else:
                 done = self.parse_token(main, token, comments)
                 if done:
-                    break
+                    return
                 comments = []
 
     def parse_token(self, main, token, comments):
@@ -143,7 +143,6 @@ class HeaderParser(object):
                 pass
             elif token.type == lexer.ELEMENT:
                 main.dst.base_name = token.value
-                main.push(ClassParser())
                 return
             else:
                 raise QmlParserUnexpectedTokenError(token)
@@ -154,7 +153,6 @@ class QmlParser(object):
         self.dst = dst
         self.tokens = tokens
         self.idx = 0
-        self.parsers = []
 
     def consume(self):
         token = self.tokens[self.idx]
@@ -179,12 +177,5 @@ class QmlParser(object):
         return self.idx == len(self.tokens)
 
     def parse(self):
-        self.push(HeaderParser())
-        while not self.at_end():
-            self.parsers[-1].parse(self)
-
-    def push(self, parser):
-        self.parsers.append(parser)
-
-    def pop(self):
-        self.parsers.pop()
+        HeaderParser().parse(self)
+        ClassParser().parse(self)
