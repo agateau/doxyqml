@@ -9,14 +9,17 @@ class QmlFunctionTestCase(TestCase):
             QmlArgument("firstname"),
             QmlArgument("lastname"),
             QmlArgument("age"),
+            QmlArgument("misc"),
             ]
         fcn.doc = """
         /**
          * Create a user
          *
-         * @param string firstname The user firstname
-         * @param string lastname The user lastname
-         * @param int age The user age
+         * @param type:string firstname The user firstname
+         * @param type:string lastname The user lastname
+         * @param type:int age The user age
+         * @param misc A parameter with no type
+         * @return type:User A new user
          */
          """
 
@@ -25,6 +28,8 @@ class QmlFunctionTestCase(TestCase):
         self.assertEqual(fcn.args[0].type, "string")
         self.assertEqual(fcn.args[1].type, "string")
         self.assertEqual(fcn.args[2].type, "int")
+        self.assertEqual(fcn.args[3].type, "")
+        self.assertEqual(fcn.type, "User")
 
         self.assertMultiLineEqual(fcn.doc, """
         /**
@@ -33,5 +38,7 @@ class QmlFunctionTestCase(TestCase):
          * @param firstname The user firstname
          * @param lastname The user lastname
          * @param age The user age
+         * @param misc A parameter with no type
+         * @return A new user
          */
          """)

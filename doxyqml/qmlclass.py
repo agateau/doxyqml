@@ -1,5 +1,14 @@
 import re
 
+TYPE_PREFIX_RX = "type\s*:\s*"
+TYPE_RX = "[\w.<>|]+"
+
+def post_process_type(rx, text, type):
+    match = rx.search(text)
+    if match:
+        type = match.group(2)
+        text = text[:match.start(1)] + text[match.end(1):]
+    return text, type
 
 class QmlClass(object):
     def __init__(self, name):
@@ -76,7 +85,7 @@ class QmlFunction(object):
             return match.group(0)
 
         self.doc = self.doc_arg_rx.sub(repl, self.doc)
-        self.doc = [self.doc_arg_rx.sub(repl, x) for x in self.doc]
+        self.doc, self.type = post_process_type(self.return_rx, self.doc, self.type)
 
 
 class QmlSignal(object):
