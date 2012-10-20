@@ -13,10 +13,12 @@ IMPORT = "import"
 
 
 class LexerError(Exception):
-    pass
+    def __init__(self, msg, idx):
+        Exception.__init__(self, msg)
+        self.idx = idx
 
 
-Token = namedtuple("Token", ["type", "value", "row", "col"])
+Token = namedtuple("Token", ["type", "value", "idx"])
 
 
 class Tokenizer(object):
@@ -46,15 +48,6 @@ class Lexer(object):
         self.idx = 0
         self.tokens = []
 
-    def coord_for_idx(self):
-        head, sep, tail = self.text[:self.idx].rpartition("\n")
-        if sep == "\n":
-            row = head.count("\n") + 2
-        else:
-            row = 1
-        col = len(tail) + 1
-        return row, col
-
 
     def tokenize(self, text):
         self.text = text
@@ -62,18 +55,7 @@ class Lexer(object):
             self.advance()
             if self.idx == len(self.text):
                 break
-            try:
-                self.apply_tokenizers()
-            except LexerError, exc:
-                row, col = self.coord_for_idx()
-                bol = self.text.rfind("\n", 0, self.idx)
-                if bol == -1:
-                    bol = 0
-                eol = self.text.find("\n", self.idx)
-                msg = self.text[bol:eol] + "\n" + "-" * (col - 1) + "^"
-                logging.error("Lexer error line %d: %s\n%s", row, exc, msg)
-                return False
-        return True
+            self.apply_tokenizers()
 
 
     def advance(self):
@@ -91,9 +73,8 @@ class Lexer(object):
                 tokenizer(self, match)
                 self.idx = match.end(0)
                 return
-        raise LexerError("No lexer matched")
+        raise LexerError("No lexer matched", self.idx)
 
 
     def append_token(self, type, value):
-        row, col = self.coord_for_idx()
-        self.tokens.append(Token(type, value, row, col))
+        self.tokens.append(Token(type, value, self.idx))

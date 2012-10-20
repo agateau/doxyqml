@@ -77,8 +77,8 @@ class QmlSignal(object):
 
 class ParserError(Exception):
     def __init__(self, msg, token):
-        msg += "\nToken: %s" % str(token)
         Exception.__init__(self, msg)
+        self.token = token
 
 
 class SkipBlockParser(object):
