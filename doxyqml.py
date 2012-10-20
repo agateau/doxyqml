@@ -48,9 +48,9 @@ def main():
 
     text = open(name).read()
 
-    lexer = Lexer()
+    lexer = Lexer(text)
     try:
-        lexer.tokenize(text)
+        lexer.tokenize()
     except LexerError, exc:
         logging.error("Failed to tokenize %s" % name)
         row, msg = info_for_error_at(text, exc.idx)
