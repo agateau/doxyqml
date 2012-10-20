@@ -9,20 +9,6 @@ class QmlParserError(Exception):
         self.token = token
 
 
-class SkipBlockParser(object):
-    def parse(self, main):
-        count = 1
-        while True:
-            token = main.consume_wo_comments()
-            if token.type == lexer.BLOCK_START:
-                count += 1
-            elif token.type == lexer.BLOCK_END:
-                count -= 1
-                if count == 0:
-                    main.pop()
-                    return
-
-
 class ClassParser(object):
     def parse(self, main):
         token = main.consume_wo_comments()
@@ -57,7 +43,7 @@ class ClassParser(object):
                 raise QmlParserError("Unknown keyword '%s'" % token.value, token)
 
         elif token.type == lexer.BLOCK_START:
-            main.push(SkipBlockParser())
+            self.skip_block(main)
 
         elif token.type == lexer.BLOCK_END:
             return True
@@ -128,6 +114,18 @@ class ClassParser(object):
         else:
             main.idx = idx
         return obj
+
+
+    def skip_block(self, main):
+        count = 1
+        while True:
+            token = main.consume_wo_comments()
+            if token.type == lexer.BLOCK_START:
+                count += 1
+            elif token.type == lexer.BLOCK_END:
+                count -= 1
+                if count == 0:
+                    return
 
 
 class HeaderParser(object):

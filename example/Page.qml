@@ -39,6 +39,8 @@ Item {
     // Defined for pages with a single view on a browsable model
     property QtObject pathModel: sourcesModel.count == 1 ? sourcesModel.get(0).model.pathModel : null
 
+    function foo() {}
+
     signal sourcesUpdated(variant sources)
     signal closeRequested()
     signal openSourceRequested(string source)
