@@ -135,19 +135,18 @@ class ClassParser(object):
                     return
 
 
-class HeaderParser(object):
-    def parse(self, main):
-        while not main.at_end():
-            token = main.consume()
-            if token.type == lexer.COMMENT:
-                main.dst.comments.append(token.value)
-            elif token.type == lexer.IMPORT:
-                pass
-            elif token.type == lexer.ELEMENT:
-                main.dst.base_name = token.value
-                return
-            else:
-                raise QmlParserUnexpectedTokenError(token)
+def parse_header(reader, cls):
+    while not reader.at_end():
+        token = reader.consume()
+        if token.type == lexer.COMMENT:
+            cls.comments.append(token.value)
+        elif token.type == lexer.IMPORT:
+            pass
+        elif token.type == lexer.ELEMENT:
+            cls.base_name = token.value
+            return
+        else:
+            raise QmlParserUnexpectedTokenError(token)
 
 
 class TokenReader(object):
@@ -179,7 +178,7 @@ class TokenReader(object):
         return self.idx == len(self.tokens)
 
 
-def parse(dst, tokens):
-    reader = TokenReader(dst, tokens)
-    HeaderParser().parse(reader)
+def parse(cls, tokens):
+    reader = TokenReader(cls, tokens)
+    parse_header(reader, cls)
     ClassParser().parse(reader)
