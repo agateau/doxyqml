@@ -3,7 +3,7 @@ from unittest import TestCase
 from lexer import Lexer
 
 from qmlclass import QmlClass
-from qmlparser import QmlParser
+import qmlparser
 
 class QmlParserTestCase(TestCase):
     def test(self):
@@ -11,8 +11,7 @@ class QmlParserTestCase(TestCase):
         lexer = Lexer(src)
         lexer.tokenize()
         qmlclass = QmlClass("Foo")
-        parser = QmlParser(qmlclass, lexer.tokens)
-        parser.parse()
+        qmlparser.parse(lexer.tokens, qmlclass)
 
         self.assertEqual(qmlclass.base_name, "Item")
 

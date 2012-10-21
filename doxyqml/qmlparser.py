@@ -177,7 +177,7 @@ class TokenReader(object):
         return self.idx == len(self.tokens)
 
 
-def parse(cls, tokens):
+def parse(tokens, cls):
     reader = TokenReader(tokens)
     parse_header(reader, cls)
     parse_class_definition(reader, cls)

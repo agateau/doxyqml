@@ -69,7 +69,7 @@ def main():
     qml_class = QmlClass(classname)
 
     try:
-        qmlparser.parse(qml_class, lexer.tokens)
+        qmlparser.parse(lexer.tokens, qml_class)
     except qmlparser.QmlParserError, exc:
         logging.error("Failed to parse %s" % name)
         row, msg = info_for_error_at(text, exc.token.idx)
