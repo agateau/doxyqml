@@ -70,7 +70,7 @@ def main():
 
     try:
         qmlparser.parse(qml_class, lexer.tokens)
-    except parser.QmlParserError, exc:
+    except qmlparser.QmlParserError, exc:
         logging.error("Failed to parse %s" % name)
         row, msg = info_for_error_at(text, exc.token.idx)
         logging.error("Lexer error line %d: %s\n%s", row, exc, msg)
