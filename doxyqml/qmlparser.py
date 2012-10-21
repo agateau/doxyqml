@@ -35,15 +35,15 @@ class ClassParser(object):
         doc = "\n".join(comments)
         if token.type == lexer.KEYWORD:
             if token.value == "property":
-                obj = self.parse_property(main)
+                obj = parse_property(main)
                 obj.doc = doc
                 main.dst.properties.append(obj)
             elif token.value == "function":
-                obj = self.parse_function(main)
+                obj = parse_function(main)
                 obj.doc = doc
                 main.dst.functions.append(obj)
             elif token.value == "signal":
-                obj = self.parse_signal(main)
+                obj = parse_signal(main)
                 obj.doc = doc
                 main.dst.signals.append(obj)
             else:
@@ -58,42 +58,42 @@ class ClassParser(object):
         return False
 
 
-    def parse_property(self, main):
-        prop = QmlProperty()
-        token = main.consume_expecting(lexer.ELEMENT)
-        if token.value == "default":
-            prop.default = True
-            token = main.consume_expecting(lexer.ELEMENT)
+def parse_property(reader):
+    prop = QmlProperty()
+    token = reader.consume_expecting(lexer.ELEMENT)
+    if token.value == "default":
+        prop.default = True
+        token = reader.consume_expecting(lexer.ELEMENT)
 
-        prop.type = token.value
+    prop.type = token.value
 
-        token = main.consume_expecting(lexer.ELEMENT)
-        prop.name = token.value
-        return prop
-
-
-    def parse_function(self, main):
-        obj = QmlFunction()
-        token = main.consume_expecting(lexer.ELEMENT)
-        obj.name = token.value
-
-        main.consume_expecting(lexer.CHAR, "(")
-        obj.args = parse_arguments(main)
-        return obj
+    token = reader.consume_expecting(lexer.ELEMENT)
+    prop.name = token.value
+    return prop
 
 
-    def parse_signal(self, main):
-        obj = QmlSignal()
-        token = main.consume_expecting(lexer.ELEMENT)
-        obj.name = token.value
+def parse_function(reader):
+    obj = QmlFunction()
+    token = reader.consume_expecting(lexer.ELEMENT)
+    obj.name = token.value
 
-        idx = main.idx
-        token = main.consume_wo_comments()
-        if token.type == lexer.CHAR and token.value == "(":
-            obj.args = parse_arguments(main, typed=True)
-        else:
-            main.idx = idx
-        return obj
+    reader.consume_expecting(lexer.CHAR, "(")
+    obj.args = parse_arguments(reader)
+    return obj
+
+
+def parse_signal(reader):
+    obj = QmlSignal()
+    token = reader.consume_expecting(lexer.ELEMENT)
+    obj.name = token.value
+
+    idx = reader.idx
+    token = reader.consume_wo_comments()
+    if token.type == lexer.CHAR and token.value == "(":
+        obj.args = parse_arguments(reader, typed=True)
+    else:
+        reader.idx = idx
+    return obj
 
 
 def parse_arguments(reader, typed=False):
