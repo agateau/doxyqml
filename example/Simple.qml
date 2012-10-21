@@ -14,6 +14,8 @@ Item {
 
     signal clicked(int x, int y)
 
+    signal activated;
+
     /**
      * Do something with arg1 and arg2
      */

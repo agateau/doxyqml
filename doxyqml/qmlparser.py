@@ -78,35 +78,8 @@ class ClassParser(object):
         obj.name = token.value
 
         main.consume_expecting(lexer.CHAR, "(")
-        obj.args = self.parse_arguments(main)
+        obj.args = parse_arguments(main)
         return obj
-
-
-    def parse_arguments(self, main, typed=False):
-        token = main.consume_wo_comments()
-        if token.type == lexer.CHAR and token.value == ")":
-            return []
-        elif token.type != lexer.ELEMENT:
-            raise QmlParserUnexpectedTokenError(token)
-
-        args = []
-        while True:
-            if typed:
-                arg_type = token.value
-                token = main.consume_expecting(lexer.ELEMENT)
-                arg = QmlArgument(token.value)
-                arg.type = arg_type
-            else:
-                arg = QmlArgument(token.value)
-            args.append(arg)
-
-            token = main.consume_expecting(lexer.CHAR)
-            if token.value == ")":
-                return args
-            elif token.value != ",":
-                raise QmlParserUnexpectedTokenError(token)
-
-            token = main.consume_expecting(lexer.ELEMENT)
 
 
     def parse_signal(self, main):
@@ -117,10 +90,37 @@ class ClassParser(object):
         idx = main.idx
         token = main.consume_wo_comments()
         if token.type == lexer.CHAR and token.value == "(":
-            obj.args = self.parse_arguments(main, typed=True)
+            obj.args = parse_arguments(main, typed=True)
         else:
             main.idx = idx
         return obj
+
+
+def parse_arguments(reader, typed=False):
+    token = reader.consume_wo_comments()
+    if token.type == lexer.CHAR and token.value == ")":
+        return []
+    elif token.type != lexer.ELEMENT:
+        raise QmlParserUnexpectedTokenError(token)
+
+    args = []
+    while True:
+        if typed:
+            arg_type = token.value
+            token = reader.consume_expecting(lexer.ELEMENT)
+            arg = QmlArgument(token.value)
+            arg.type = arg_type
+        else:
+            arg = QmlArgument(token.value)
+        args.append(arg)
+
+        token = reader.consume_expecting(lexer.CHAR)
+        if token.value == ")":
+            return args
+        elif token.value != ",":
+            raise QmlParserUnexpectedTokenError(token)
+
+        token = reader.consume_expecting(lexer.ELEMENT)
 
 
 def skip_block(reader):
