@@ -150,7 +150,7 @@ class HeaderParser(object):
                 raise QmlParserUnexpectedTokenError(token)
 
 
-class QmlParser(object):
+class TokenReader(object):
     def __init__(self, dst, tokens):
         self.dst = dst
         self.tokens = tokens
@@ -178,6 +178,8 @@ class QmlParser(object):
     def at_end(self):
         return self.idx == len(self.tokens)
 
-    def parse(self):
-        HeaderParser().parse(self)
-        ClassParser().parse(self)
+
+def parse(dst, tokens):
+    reader = TokenReader(dst, tokens)
+    HeaderParser().parse(reader)
+    ClassParser().parse(reader)
