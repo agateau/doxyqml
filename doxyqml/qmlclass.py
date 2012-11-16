@@ -46,6 +46,9 @@ class QmlArgument(object):
 
 class QmlProperty(object):
     type_rx = re.compile(TYPE_RX)
+
+    DEFAULT_PROPERTY_COMMENT = "/** @remark This is the default property */"
+
     def __init__(self):
         self.type = ""
         self.is_default = False
@@ -60,6 +63,8 @@ class QmlProperty(object):
 
     def post_process_doc(self):
         self.doc, self.type = post_process_type(self.type_rx, self.doc, self.type)
+        if self.is_default:
+            self.doc = self.doc + "\n" + self.DEFAULT_PROPERTY_COMMENT
 
 
 class QmlFunction(object):

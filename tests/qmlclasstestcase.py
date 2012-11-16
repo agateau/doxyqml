@@ -63,3 +63,13 @@ class QmlPropertyTestCase(TestCase):
 
         self.assertEqual(prop.type, "int")
         self.assertEqual(prop.doc, "/// The user age")
+
+    def test_default_property(self):
+        prop = QmlProperty()
+        prop.doc = "/// Children"
+        prop.type = "list<Item>"
+        prop.is_default = True
+
+        prop.post_process_doc()
+
+        self.assertEqual(prop.doc, "/// Children\n" + QmlProperty.DEFAULT_PROPERTY_COMMENT)
