@@ -34,8 +34,8 @@ def parse_class_content(reader, cls, token, comments):
     # Should we just use the last comment?
     doc = "\n".join(comments)
     if token.type == lexer.KEYWORD:
-        if token.value == "property":
-            obj = parse_property(reader)
+        if token.value.endswith("property"):
+            obj = parse_property(reader, token.value)
             obj.doc = doc
             cls.properties.append(obj)
         elif token.value == "function":
@@ -58,13 +58,11 @@ def parse_class_content(reader, cls, token, comments):
     return False
 
 
-def parse_property(reader):
+def parse_property(reader, property_token_value):
     prop = QmlProperty()
-    token = reader.consume_expecting(lexer.ELEMENT)
-    if token.value == "default":
-        prop.default = True
-        token = reader.consume_expecting(lexer.ELEMENT)
+    prop.is_default = property_token_value.startswith("default")
 
+    token = reader.consume_expecting(lexer.ELEMENT)
     prop.type = token.value
 
     token = reader.consume_expecting(lexer.ELEMENT)

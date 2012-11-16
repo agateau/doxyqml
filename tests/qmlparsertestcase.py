@@ -18,3 +18,25 @@ class QmlParserTestCase(TestCase):
         self.assertEqual(qmlclass.functions[0].name, "foo")
         self.assertEqual(qmlclass.functions[1].name, "bar")
         self.assertEqual(len(qmlclass.functions), 2)
+
+    def test_default_property(self):
+        src = """Item {
+            /// v1 doc
+            default property int v1
+            /// v2 doc
+            property int v2
+            }"""
+        lexer = Lexer(src)
+        lexer.tokenize()
+        qmlclass = QmlClass("Foo")
+        qmlparser.parse(lexer.tokens, qmlclass)
+
+        self.assertEqual(qmlclass.properties[0].name, "v1")
+        self.assertEqual(qmlclass.properties[0].type, "int")
+        self.assertEqual(qmlclass.properties[0].doc, "/// v1 doc")
+        self.assert_(qmlclass.properties[0].is_default)
+
+        self.assertEqual(qmlclass.properties[1].name, "v2")
+        self.assertEqual(qmlclass.properties[1].type, "int")
+        self.assertEqual(qmlclass.properties[1].doc, "/// v2 doc")
+        self.assert_(not qmlclass.properties[1].is_default)
