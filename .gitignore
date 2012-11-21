@@ -1,4 +1,4 @@
-example/html
+tests/manual/html
 *.pyc
 MANIFEST
 dist
