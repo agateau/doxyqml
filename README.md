@@ -1,25 +1,29 @@
 # Goals
 
-Turns a .qml into something Doxygen can swallow through an input filter.
+Doxyqml turns .qml into pseudo-C++ which Doxygen can then use to generate
+documentation.
 
-# Setup
+# Installing
 
-First, make sure doxyqml is in $PATH. For example with:
+Doxyqml uses the standard Python setup tools, so you can install it with:
 
-    ln -s /path/to/doxyqml.py $HOME/bin/doxyqml
+    python setup.py install
 
-Then in your Doxygen file, add .qml files to `FILE_PATTERNS`:
+# Telling Doxygen to use Doxyqml
 
-    FILE_PATTERNS = *.qml
-
-And set `FILTER_PATTERNS`:
+Edit your Doxygen file: first you need to set the `FILTER_PATTERNS` key to
+associate .qml files with Doxyqml:
 
     FILTER_PATTERNS = *.qml=doxyqml
+
+Then you must add .qml files to `FILE_PATTERNS`:
+
+    FILE_PATTERNS = *.qml
 
 # Documenting types
 
 QML is partly-typed: functions are untyped, properties and signals are. Doxyqml
-provide a way to define types where they are missing.
+provides a way to define types when they are missing or not precise enough.
 
 ## Functions
 
@@ -37,9 +41,9 @@ like this:
 
 ## Properties
 
-QML properties are typed, doxyqml will take advantage of the existing type. You
-can nevertheless overwrite the type using the same `type:<name>` syntax. This is
-useful for example to document property aliases:
+QML properties are typed, so Doxyqml uses them by default. You can nevertheless
+overwrite the type using the same `type:<name>` syntax. This is useful to
+document property aliases:
 
     /** type:string The user lastname */
     property alias lastname: someObject.text
