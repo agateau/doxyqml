@@ -1,0 +1,8 @@
+include bin/doxyqml
+recursive-include doxyqml *.py
+recursive-include tests *.py
+include setup.py
+include NEWS
+include LICENSE
+include README.md
+include MANIFEST.in
