@@ -14,10 +14,12 @@ Item {
 
     signal clicked(int x, int y)
 
-    signal activated;
+    signal activated
 
     /**
      * Do something with arg1 and arg2
+     * @param type:string arg1 first argument
+     * @param type:int arg2 second argument
      */
     function doSomething(arg1, arg2) {
         console.log("arg1=" + arg1);
@@ -28,7 +30,7 @@ Item {
 
     /**
      * Compute the arg^2
-     * @return int
+     * @return type:int the result
      */
     function square(arg) {
         return arg * arg;
