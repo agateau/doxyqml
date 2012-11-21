@@ -5,4 +5,5 @@ include setup.py
 include NEWS
 include LICENSE
 include README.md
+include RELEASE_CHECK_LIST.md
 include MANIFEST.in
