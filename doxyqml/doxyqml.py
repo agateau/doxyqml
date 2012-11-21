@@ -5,7 +5,7 @@ import sys
 from optparse import OptionParser
 
 import qmlparser
-from lexer import Lexer
+from lexer import Lexer, LexerError
 from qmlclass import QmlClass
 
 
