@@ -9,6 +9,10 @@ from lexer import Lexer, LexerError
 from qmlclass import QmlClass
 
 
+VERSION = "0.1.0"
+DESCRIPTION = "Doxygen input filter for QML files"
+
+
 def coord_for_idx(text, idx):
     head, sep, tail = text[:idx].rpartition("\n")
     if sep == "\n":
@@ -34,18 +38,25 @@ def info_for_error_at(text, idx):
     return row, msg
 
 
-def parse_cmdline():
-    parser = OptionParser("usage: %prog [options] <path/to/File.qml>")
+def create_opt_parser():
+    parser = OptionParser(
+        usage="usage: %prog [options] <path/to/File.qml>",
+        version="%prog " + VERSION,
+        description=DESCRIPTION,
+        )
     parser.add_option("-d", "--debug",
                       action="store_true", dest="debug", default=False,
                       help="Log debug info to stderr")
-    return parser.parse_args()
+    return parser
 
 
 def main():
-    options, args = parse_cmdline()
-    name = args[0]
+    opt_parser = create_opt_parser()
+    options, args = opt_parser.parse_args()
+    if len(args) != 1:
+        opt_parser.error("Invalid number of arguments")
 
+    name = args[0]
     text = open(name).read()
 
     lexer = Lexer(text)
