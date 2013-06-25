@@ -25,6 +25,15 @@ Item {
         console.log("arg1=" + arg1);
     }
 
+    /**
+     * A badly documented function. Missing one argument and documenting a
+     * non-existing document
+     * @param type:string foo first argument
+     * @param type:int baz this argument does not exist
+     */
+    function badlyDocumented(foo, bar) {
+    }
+
     property string escaped: "a string \n \" \t with escaped chars"
     property string block: "a string with some block {({ ] } chars"
 

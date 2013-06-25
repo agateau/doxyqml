@@ -1,3 +1,4 @@
+import logging
 import re
 
 TYPE_RX = "(?P<prefix>\s+type:)(?P<type>[\w.<>|]+)"
@@ -85,13 +86,16 @@ class QmlFunction(object):
 
     def post_process_doc(self):
         def repl(match):
+            # For each argument with a specified type, update arg.type and return a typeless @param line
             type = match.group("type")
             name = match.group("name")
             for arg in self.args:
                 if arg.name == name:
                     arg.type = type
-                    return "@param %s" % name
-            return match.group(0)
+                    break
+            else:
+                logging.warning("In function %s(): Unknown argument %s" % (self.name, name))
+            return "@param %s" % name
 
         self.doc = self.doc_arg_rx.sub(repl, self.doc)
         self.doc, self.type = post_process_type(self.return_rx, self.doc, self.type)
