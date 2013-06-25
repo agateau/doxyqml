@@ -1,17 +1,11 @@
+import re
 from unittest import TestCase
 
 from qmlclass import QmlFunction, QmlArgument, QmlProperty
 
 class QmlFunctionTestCase(TestCase):
-    def test_post_process_doc(self):
-        fcn = QmlFunction()
-        fcn.args = [
-            QmlArgument("firstname"),
-            QmlArgument("lastname"),
-            QmlArgument("age"),
-            QmlArgument("misc"),
-            ]
-        fcn.doc = """
+    def test_post_process_doc_at(self):
+        self._test_post_process_doc("""
         /**
          * Create a user
          *
@@ -21,8 +15,30 @@ class QmlFunctionTestCase(TestCase):
          * @param misc A parameter with no type
          * @return type:User A new user
          */
-         """
+         """)
 
+    def test_post_process_doc_backslash(self):
+        self._test_post_process_doc(r"""
+        /**
+         * Create a user
+         *
+         * \param type:string firstname The user firstname
+         * \param type:string lastname The user lastname
+         * \param type:int age The user age
+         * \param misc A parameter with no type
+         * \return type:User A new user
+         */
+         """)
+
+    def _test_post_process_doc(self, doc):
+        fcn = QmlFunction()
+        fcn.args = [
+            QmlArgument("firstname"),
+            QmlArgument("lastname"),
+            QmlArgument("age"),
+            QmlArgument("misc"),
+            ]
+        fcn.doc = doc
         fcn.post_process_doc()
 
         self.assertEqual(fcn.args[0].type, "string")
@@ -31,17 +47,12 @@ class QmlFunctionTestCase(TestCase):
         self.assertEqual(fcn.args[3].type, "")
         self.assertEqual(fcn.type, "User")
 
-        self.assertMultiLineEqual(fcn.doc, """
-        /**
-         * Create a user
-         *
-         * @param firstname The user firstname
-         * @param lastname The user lastname
-         * @param age The user age
-         * @param misc A parameter with no type
-         * @return A new user
-         */
-         """)
+        # "[@\]param type:..." are turned into "@param"
+        expected_doc = re.sub(r"[@\\]param type:\w+", r"@param", doc)
+        # "[@\]return type:..." are turned into "[@\]return"
+        expected_doc = re.sub(r"([@\\])return type:\w+", r"\1return", expected_doc)
+        self.assertMultiLineEqual(fcn.doc, expected_doc)
+
 
 class QmlPropertyTestCase(TestCase):
     def test_property_type(self):
