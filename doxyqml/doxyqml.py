@@ -73,8 +73,7 @@ def main():
 
     if options.debug:
         for token in lexer.tokens:
-            print "## type=%s ####" % token.type
-            print token.value
+            print "%20s %s" % (token.type, token.value)
 
     classname = os.path.basename(name).split(".")[0]
     qml_class = QmlClass(classname)
