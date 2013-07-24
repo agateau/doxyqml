@@ -40,3 +40,29 @@ class QmlParserTestCase(TestCase):
         self.assertEqual(qmlclass.properties[1].type, "int")
         self.assertEqual(qmlclass.properties[1].doc, "/// v2 doc")
         self.assert_(not qmlclass.properties[1].is_default)
+
+    def test_var_property(self):
+        src = """Item {
+            property var varProperty: { "key1": "value1", "key2": "value2" }
+            }"""
+
+        lexer = Lexer(src)
+        lexer.tokenize()
+        qmlclass = QmlClass("Foo")
+        qmlparser.parse(lexer.tokens, qmlclass)
+
+        self.assertEqual(qmlclass.properties[0].name, "varProperty")
+        self.assertEqual(qmlclass.properties[0].type, "var")
+
+    def test_function_property(self):
+        src = """Item {
+            property var fnProperty: function (arg1, arg2) { return arg1 + arg2; }
+            }"""
+
+        lexer = Lexer(src)
+        lexer.tokenize()
+        qmlclass = QmlClass("Foo")
+        qmlparser.parse(lexer.tokens, qmlclass)
+
+        self.assertEqual(qmlclass.properties[0].name, "fnProperty")
+        self.assertEqual(qmlclass.properties[0].type, "var")

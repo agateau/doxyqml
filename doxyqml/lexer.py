@@ -26,8 +26,8 @@ class Tokenizer(object):
         self.token_type = token_type
         self.rx = rx
 
-    def __call__(self, lexer, match):
-        lexer.append_token(self.token_type, match.group(0))
+    def __call__(self, lexer, matched_str):
+        lexer.append_token(self.token_type, matched_str)
 
 
 class Lexer(object):
@@ -39,7 +39,8 @@ class Lexer(object):
             Tokenizer(BLOCK_START, re.compile("{")),
             Tokenizer(BLOCK_END, re.compile("}")),
             Tokenizer(IMPORT, re.compile("^import .*$", re.MULTILINE)),
-            Tokenizer(KEYWORD, re.compile("(default\s+property|property|function|signal)")),
+            Tokenizer(KEYWORD, re.compile("(?:default\s+property|property|signal)")),
+            Tokenizer(KEYWORD, re.compile("(function)\s+[^(]")),  # a named function
             Tokenizer(ELEMENT, re.compile(r"\w[\w.<>]*")),
             Tokenizer(CHAR, re.compile(".")),
             ]
@@ -67,10 +68,19 @@ class Lexer(object):
     def apply_tokenizers(self):
         for tokenizer in self.tokenizers:
             match = tokenizer.rx.match(self.text, self.idx)
-            if match:
-                tokenizer(self, match)
+
+            if not match:
+                continue
+
+            if len(match.groups()) > 0:
+                tokenizer(self, match.group(1))
+                self.idx = match.end(1)
+                return
+            else:
+                tokenizer(self, match.group(0))
                 self.idx = match.end(0)
                 return
+
         raise LexerError("No lexer matched", self.idx)
 
 
