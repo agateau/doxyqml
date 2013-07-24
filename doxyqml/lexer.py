@@ -68,14 +68,19 @@ class Lexer(object):
     def apply_tokenizers(self):
         for tokenizer in self.tokenizers:
             match = tokenizer.rx.match(self.text, self.idx)
-            if match and len(match.groups()) > 0 and match.groups()[0] is not None:
+
+            if not match:
+                continue
+
+            if len(match.groups()) > 0:
                 tokenizer(self, match.group(1))
                 self.idx = match.end(1)
                 return
-            elif match and len(match.groups()) == 0:
+            else:
                 tokenizer(self, match.group(0))
                 self.idx = match.end(0)
                 return
+
         raise LexerError("No lexer matched", self.idx)
 
 
