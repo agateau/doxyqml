@@ -66,3 +66,33 @@ class QmlParserTestCase(TestCase):
 
         self.assertEqual(qmlclass.properties[0].name, "fnProperty")
         self.assertEqual(qmlclass.properties[0].type, "var")
+
+    def test_normal_arguments(self):
+        src = """Item {
+                     function foo(arg1, arg2) {
+                         return arg1 + arg2;
+                     }
+                 }"""
+
+        lexer = Lexer(src)
+        lexer.tokenize()
+        qmlclass = QmlClass("Foo")
+        qmlparser.parse(lexer.tokens, qmlclass)
+
+        self.assertEqual(qmlclass.functions[0].name, "foo")
+        self.assertEqual(qmlclass.functions[0].type, "void")
+
+    def test_keyword_arguments(self):
+        src = """Item {
+                     function foo(propertyArgument, signalArgument) {
+                         return propertyArgument + signalArgument;
+                     }
+                 }"""
+
+        lexer = Lexer(src)
+        lexer.tokenize()
+        qmlclass = QmlClass("Foo")
+        qmlparser.parse(lexer.tokens, qmlclass)
+
+        self.assertEqual(qmlclass.functions[0].name, "foo")
+        self.assertEqual(qmlclass.functions[0].type, "void")
