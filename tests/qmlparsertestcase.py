@@ -41,6 +41,28 @@ class QmlParserTestCase(TestCase):
         self.assertEqual(qmlclass.properties[1].doc, "/// v2 doc")
         self.assert_(not qmlclass.properties[1].is_default)
 
+    def test_readonly_property(self):
+        src = """Item {
+            /// v1 doc
+            readonly property int v1
+            /// v2 doc
+            property int v2
+            }"""
+        lexer = Lexer(src)
+        lexer.tokenize()
+        qmlclass = QmlClass("Foo")
+        qmlparser.parse(lexer.tokens, qmlclass)
+
+        self.assertEqual(qmlclass.properties[0].name, "v1")
+        self.assertEqual(qmlclass.properties[0].type, "int")
+        self.assertEqual(qmlclass.properties[0].doc, "/// v1 doc")
+        self.assert_(qmlclass.properties[0].is_readonly)
+
+        self.assertEqual(qmlclass.properties[1].name, "v2")
+        self.assertEqual(qmlclass.properties[1].type, "int")
+        self.assertEqual(qmlclass.properties[1].doc, "/// v2 doc")
+        self.assert_(not qmlclass.properties[1].is_readonly)
+
     def test_var_property(self):
         src = """Item {
             property var varProperty: { "key1": "value1", "key2": "value2" }
