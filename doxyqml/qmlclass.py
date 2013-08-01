@@ -49,7 +49,7 @@ class QmlProperty(object):
     type_rx = re.compile(TYPE_RX)
 
     DEFAULT_PROPERTY_COMMENT = "/** @remark This is the default property */"
-    READONLY_PROPERTY_COMMENT = "/** @remark This property is read-only. */"
+    READONLY_PROPERTY_COMMENT = "/** @remark This property is read-only */"
 
     def __init__(self):
         self.type = ""
