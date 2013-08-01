@@ -61,6 +61,7 @@ def parse_class_content(reader, cls, token, comments):
 def parse_property(reader, property_token_value):
     prop = QmlProperty()
     prop.is_default = property_token_value.startswith("default")
+    prop.is_readonly = property_token_value.startswith("readonly")
 
     token = reader.consume_expecting(lexer.ELEMENT)
     prop.type = token.value

@@ -39,7 +39,7 @@ class Lexer(object):
             Tokenizer(BLOCK_START, re.compile("{")),
             Tokenizer(BLOCK_END, re.compile("}")),
             Tokenizer(IMPORT, re.compile("^import .*$", re.MULTILINE)),
-            Tokenizer(KEYWORD, re.compile("(default\s+property|property|signal)\s+")),
+            Tokenizer(KEYWORD, re.compile("(default\s+property|property|readonly\s+property|signal)\s+")),
             Tokenizer(KEYWORD, re.compile("(function)\s+[^(]")),  # a named function
             Tokenizer(ELEMENT, re.compile(r"\w[\w.<>]*")),
             Tokenizer(CHAR, re.compile(".")),
