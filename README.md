@@ -16,6 +16,11 @@ associate .qml files with Doxyqml:
 
     FILTER_PATTERNS = *.qml=doxyqml
 
+Note: On Windows you may need to use the full path of the `doxyqml.py` file
+instead. For example if you installed Python 2.7 in `C:\Python27`, use this:
+
+    FILTER_PATTERNS = *.qml=C:\Python27\Lib\site-packages\doxyqml\doxyqml.py
+
 Then you must add .qml files to `FILE_PATTERNS`:
 
     FILE_PATTERNS = *.qml
