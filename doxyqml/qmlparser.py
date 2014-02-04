@@ -23,7 +23,7 @@ def parse_class_definition(reader, cls):
         token = reader.consume()
         if token.type == lexer.COMMENT:
             if last_comment:
-                cls.add_comment(last_comment)
+                cls.add_element(last_comment)
             last_comment = token.value
         elif token.type == lexer.KEYWORD:
             done = parse_class_content(reader, cls, token, last_comment)
@@ -33,7 +33,7 @@ def parse_class_definition(reader, cls):
         elif token.type == lexer.BLOCK_END:
             break
     if last_comment:
-        cls.add_comment(last_comment)
+        cls.add_element(last_comment)
 
 
 def parse_class_content(reader, cls, token, doc):
