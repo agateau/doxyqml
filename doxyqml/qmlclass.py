@@ -70,7 +70,6 @@ class QmlProperty(object):
             self.doc = self.doc + "\n" + self.DEFAULT_PROPERTY_COMMENT
         elif self.is_readonly:
             self.doc = self.doc + "\n" + self.READONLY_PROPERTY_COMMENT
-        
 
 
 class QmlFunction(object):
