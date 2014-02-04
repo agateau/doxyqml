@@ -14,19 +14,30 @@ class QmlClass(object):
     def __init__(self, name):
         self.name = name
         self.base_name = ""
-        self.comments = []
-        self.properties = []
-        self.functions = []
-        self.signals = []
+        self.header_comments = []
+        self.elements = []
+
+    def get_properties(self):
+        return [x for x in self.elements if isinstance(x, QmlProperty)]
+
+    def get_functions(self):
+        return [x for x in self.elements if isinstance(x, QmlFunction)]
+
+    def get_signals(self):
+        return [x for x in self.elements if isinstance(x, QmlSignal)]
+
+    def add_element(self, element):
+        self.elements.append(element)
+
+    def add_header_comment(self, obj):
+        self.header_comments.append(obj)
 
     def __str__(self):
         lst = []
-        lst.extend([str(x) for x in self.comments])
+        lst.extend([str(x) for x in self.header_comments])
         lst.append("class %s : public %s {" % (self.name, self.base_name))
         lst.append("public:")
-        lst.extend([str(x) for x in self.properties])
-        lst.extend([str(x) for x in self.functions])
-        lst.extend([str(x) for x in self.signals])
+        lst.extend([str(x) for x in self.elements])
         lst.append("};")
         return "\n".join(lst)
 

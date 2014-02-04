@@ -18,44 +18,37 @@ def parse_class_definition(reader, cls):
     token = reader.consume_wo_comments()
     if token.type != lexer.BLOCK_START:
         raise QmlParserError("Expected '{' after base class name", token)
-    comments = []
+    last_comment = None
     while not reader.at_end():
         token = reader.consume()
         if token.type == lexer.COMMENT:
-            comments.append(token.value)
-        else:
-            done = parse_class_content(reader, cls, token, comments)
-            if done:
-                return
-            comments = []
+            if last_comment:
+                cls.add_comment(last_comment)
+            last_comment = token.value
+        elif token.type == lexer.KEYWORD:
+            done = parse_class_content(reader, cls, token, last_comment)
+            last_comment = None
+        elif token.type == lexer.BLOCK_START:
+            skip_block(reader)
+        elif token.type == lexer.BLOCK_END:
+            break
+    if last_comment:
+        cls.add_comment(last_comment)
 
 
-def parse_class_content(reader, cls, token, comments):
-    # Should we just use the last comment?
-    doc = "\n".join(comments)
-    if token.type == lexer.KEYWORD:
-        if token.value.endswith("property"):
-            obj = parse_property(reader, token.value)
-            obj.doc = doc
-            cls.properties.append(obj)
-        elif token.value == "function":
-            obj = parse_function(reader)
-            obj.doc = doc
-            cls.functions.append(obj)
-        elif token.value == "signal":
-            obj = parse_signal(reader)
-            obj.doc = doc
-            cls.signals.append(obj)
-        else:
-            raise QmlParserError("Unknown keyword '%s'" % token.value, token)
-
-    elif token.type == lexer.BLOCK_START:
-        skip_block(reader)
-
-    elif token.type == lexer.BLOCK_END:
-        return True
-
-    return False
+def parse_class_content(reader, cls, token, doc):
+    keyword = token.value
+    if keyword.endswith("property"):
+        obj = parse_property(reader, keyword)
+    elif keyword == "function":
+        obj = parse_function(reader)
+    elif keyword == "signal":
+        obj = parse_signal(reader)
+    else:
+        raise QmlParserError("Unknown keyword '%s'" % keyword, token)
+    if doc is not None:
+        obj.doc = doc
+    cls.add_element(obj)
 
 
 def parse_property(reader, property_token_value):
@@ -138,7 +131,7 @@ def parse_header(reader, cls):
     while not reader.at_end():
         token = reader.consume()
         if token.type == lexer.COMMENT:
-            cls.comments.append(token.value)
+            cls.add_header_comment(token.value)
         elif token.type == lexer.IMPORT:
             pass
         elif token.type == lexer.ELEMENT:
