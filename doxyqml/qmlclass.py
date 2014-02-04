@@ -26,9 +26,7 @@ class QmlClass(object):
         lst.append("public:")
         lst.extend([str(x) for x in self.properties])
         lst.extend([str(x) for x in self.functions])
-        if self.signals:
-            lst.append("Q_SIGNALS:")
-            lst.extend([str(x) for x in self.signals])
+        lst.extend([str(x) for x in self.signals])
         lst.append("};")
         return "\n".join(lst)
 
@@ -114,5 +112,5 @@ class QmlSignal(object):
     def __str__(self):
         arg_string = ", ".join([str(x) for x in self.args])
         lst = [self.doc]
-        lst.append("void %s(%s);" % (self.name, arg_string))
+        lst.append("Q_SIGNAL void %s(%s);" % (self.name, arg_string))
         return "\n".join(lst)
