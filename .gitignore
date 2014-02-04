@@ -3,3 +3,4 @@ tests/manual/html
 MANIFEST
 dist
 .*swp
+build
