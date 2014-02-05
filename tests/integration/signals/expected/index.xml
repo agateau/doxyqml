@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygenindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="index.xsd" version="1.8.4">
+  <compound refid="classSignal" kind="class"><name>Signal</name>
+    <member refid="classSignal_1a233f2352a549b870837644f61a6e3df8" kind="function"><name>move</name></member>
+    <member refid="classSignal_1a8a335043cbad57d30c560802cc352c8f" kind="function"><name>doSomething</name></member>
+    <member refid="classSignal_1a6fd198475cbc7678524a1b093641a9aa" kind="signal"><name>moved</name></member>
+  </compound>
+  <compound refid="Signal_8qml" kind="file"><name>Signal.qml</name>
+  </compound>
+</doxygenindex>
