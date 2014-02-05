@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+import os
 import sys
+
+fromsrc_py = os.path.join(os.path.dirname(__file__), "fromsrc.py")
+if os.path.exists(fromsrc_py):
+    import fromsrc
+
 from doxyqml import doxyqml
 sys.exit(doxyqml.main())
