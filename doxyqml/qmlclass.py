@@ -123,5 +123,9 @@ class QmlSignal(object):
     def __str__(self):
         arg_string = ", ".join([str(x) for x in self.args])
         lst = [self.doc]
-        lst.append("Q_SIGNAL void %s(%s);" % (self.name, arg_string))
+        # This strange syntax makes it possible to declare a signal without
+        # turning all functions defined after into signals.
+        # It could be replaced with the use of Q_SIGNAL, but my version of
+        # Doxygen (1.8.4) does not support it
+        lst.append("Q_SIGNALS: void %s(%s); public:" % (self.name, arg_string))
         return "\n".join(lst)
