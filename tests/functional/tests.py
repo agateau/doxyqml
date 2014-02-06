@@ -1,5 +1,9 @@
 #!/usr/bin/env python
+# encoding: utf-8
 
+from __future__ import division, absolute_import, print_function, unicode_literals
+
+import argparse
 import difflib
 import os
 import shutil
@@ -34,6 +38,12 @@ class Test(object):
                     self.error("doxyqml failed on {}".format(name))
                     ok = False
         return ok
+
+
+    def update(self):
+        if os.path.exists(self.expected_dir):
+            shutil.rmtree(self.expected_dir)
+        shutil.copytree(self.output_dir, self.expected_dir)
 
 
     def compare(self):
@@ -73,11 +83,30 @@ class Test(object):
 def main():
     os.chdir(os.path.dirname(__file__))
 
-    errors = 0
-    for test_dir in os.listdir("."):
-        if not os.path.isdir(test_dir):
-            continue
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-u", "--update",
+        help="Update expected output from test ID", metavar="ID")
+    parser.add_argument("test_id", nargs="?",
+        help="Run specified test only")
+    args = parser.parse_args()
 
+    if args.update:
+        print("Updating {}...".format(args.update))
+        test = Test(args.update)
+        if not test.build():
+            return 1
+        test.update()
+        return 0
+
+    if args.test_id:
+        if not os.path.isdir(args.test_id):
+            parser.error("Invalid test id '{}'".format(args.test_id))
+        test_list = [args.test_id]
+    else:
+        test_list = [x for x in os.listdir(".") if os.path.isdir(x)]
+
+    errors = 0
+    for test_dir in test_list:
         print("Testing {}...".format(test_dir))
         test = Test(test_dir)
         if not (test.build() and test.compare()):
