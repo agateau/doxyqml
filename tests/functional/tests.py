@@ -44,6 +44,8 @@ class Test(object):
 
         ok = True
         for name in lst:
+            if not name.endswith(".cpp"):
+                continue
             out_path = os.path.join(self.output_dir, name)
             if not os.path.exists(out_path):
                 self.error("File {} does not exist".format(out_path))
