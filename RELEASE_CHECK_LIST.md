@@ -10,6 +10,10 @@ Create tarball:
 
     python setup.py sdist --formats=bztar
 
+Run unit tests
+
+Run functional tests
+
 If ok, create "x.y.z" tag:
 
     git tag -a x.y.z
