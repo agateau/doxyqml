@@ -4,7 +4,7 @@ import os
 import unittest
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, "doxyqml"))
+sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "doxyqml"))
 
 from qmlclasstestcase import *
 from qmlparsertestcase import *

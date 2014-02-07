@@ -12,8 +12,9 @@ import subprocess
 
 
 class Test(object):
-    def __init__(self, name):
+    def __init__(self, name, executable):
         self.name = name
+        self.executable = executable
         self.input_dir = os.path.join(self.name, "input")
         self.output_dir = os.path.join(self.name, "output")
         self.expected_dir = os.path.join(self.name, "expected")
@@ -31,7 +32,7 @@ class Test(object):
             out_path = os.path.join(self.output_dir, name + ".cpp")
             with open(out_path, "w") as out:
                 ret = subprocess.call(
-                    ["doxyqml", name],
+                    [self.executable, name],
                     stdout=out,
                     cwd=self.input_dir)
                 if ret != 0:
@@ -81,18 +82,25 @@ class Test(object):
 
 
 def main():
-    os.chdir(os.path.dirname(__file__))
+    script_dir = os.path.dirname(__file__)
+    default_doxyqml = os.path.abspath(os.path.join(script_dir, os.pardir, os.pardir, "bin", "doxyqml"))
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-u", "--update",
         help="Update expected output from test ID", metavar="ID")
+    parser.add_argument("--doxyqml", default=default_doxyqml,
+        help="Path to the doxyqml executable ({})".format(default_doxyqml))
     parser.add_argument("test_id", nargs="?",
         help="Run specified test only")
     args = parser.parse_args()
 
+    executable = os.path.abspath(args.doxyqml)
+
+    os.chdir(script_dir)
+
     if args.update:
         print("Updating {}...".format(args.update))
-        test = Test(args.update)
+        test = Test(args.update, executable)
         if not test.build():
             return 1
         test.update()
@@ -108,7 +116,7 @@ def main():
     errors = 0
     for test_dir in test_list:
         print("Testing {}...".format(test_dir))
-        test = Test(test_dir)
+        test = Test(test_dir, executable)
         if not (test.build() and test.compare()):
             errors += 1
             continue
