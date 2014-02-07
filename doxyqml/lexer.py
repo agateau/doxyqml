@@ -21,13 +21,32 @@ class LexerError(Exception):
 Token = namedtuple("Token", ["type", "value", "idx"])
 
 
-class Tokenizer(object):
-    def __init__(self, token_type, rx):
-        self.token_type = token_type
-        self.rx = rx
+TokenizerResult = namedtuple("TokenizerResult", ["token", "idx"])
 
-    def __call__(self, lexer, matched_str):
-        lexer.append_token(self.token_type, matched_str)
+
+class Tokenizer(object):
+    """Helper class to extract tokens, based on regular expression
+
+    If the regular expression defines a match group named 'value', then the
+    content of this group is used as the token value. If no 'value' group is
+    defined, the whole match is the token value.
+    """
+    def __init__(self, token_type, rx):
+        self.type = token_type
+        self.rx = rx
+        self.groupindex = self.rx.groupindex.get("value", 0)
+
+    def match(self, text, idx):
+        """Try to match `text` at position `idx`
+
+        Returns a TokenizerResult on success, None otherwise
+        """
+        match = self.rx.match(text, idx)
+        if match:
+            token = Token(self.type, match.group(self.groupindex), idx)
+            return TokenizerResult(token, match.end(self.groupindex))
+        else:
+            return None
 
 
 class Lexer(object):
@@ -35,12 +54,12 @@ class Lexer(object):
         self.tokenizers = [
             Tokenizer(COMMENT, re.compile(r"/\*.*?\*/", re.DOTALL)),
             Tokenizer(COMMENT, re.compile(r"//.*$", re.MULTILINE)),
-            Tokenizer(STRING, re.compile(r'("([^\\"]|(\\.))*")')),
+            Tokenizer(STRING, re.compile(r'"([^\\"]|(\\.))*"')),
             Tokenizer(BLOCK_START, re.compile("{")),
             Tokenizer(BLOCK_END, re.compile("}")),
             Tokenizer(IMPORT, re.compile("^import .*$", re.MULTILINE)),
-            Tokenizer(KEYWORD, re.compile("(default\s+property|property|readonly\s+property|signal)\s+")),
-            Tokenizer(KEYWORD, re.compile("(function)\s+[^(]")),  # a named function
+            Tokenizer(KEYWORD, re.compile("(?P<value>default\s+property|property|readonly\s+property|signal)\s+")),
+            Tokenizer(KEYWORD, re.compile("(?P<value>function)\s+[^(]")),  # a named function
             Tokenizer(ELEMENT, re.compile(r"\w[\w.<>]*")),
             Tokenizer(CHAR, re.compile(".")),
             ]
@@ -67,22 +86,10 @@ class Lexer(object):
 
     def apply_tokenizers(self):
         for tokenizer in self.tokenizers:
-            match = tokenizer.rx.match(self.text, self.idx)
-
-            if not match:
-                continue
-
-            if len(match.groups()) > 0:
-                tokenizer(self, match.group(1))
-                self.idx = match.end(1)
-                return
-            else:
-                tokenizer(self, match.group(0))
-                self.idx = match.end(0)
+            result = tokenizer.match(self.text, self.idx)
+            if result:
+                self.tokens.append(result.token)
+                self.idx = result.idx
                 return
 
         raise LexerError("No lexer matched", self.idx)
-
-
-    def append_token(self, type, value):
-        self.tokens.append(Token(type, value, self.idx))
