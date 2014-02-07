@@ -1,8 +1,8 @@
 #!/usr/bin/env python
+import argparse
 import logging
 import os
 import sys
-from optparse import OptionParser
 
 import qmlparser
 from lexer import Lexer, LexerError
@@ -38,25 +38,23 @@ def info_for_error_at(text, idx):
     return row, msg
 
 
-def create_opt_parser():
-    parser = OptionParser(
-        usage="usage: %prog [options] <path/to/File.qml>",
-        version="%prog " + VERSION,
+def parse_args():
+    parser = argparse.ArgumentParser(
+        version=VERSION,
         description=DESCRIPTION,
         )
-    parser.add_option("-d", "--debug",
-                      action="store_true", dest="debug", default=False,
+    parser.add_argument("-d", "--debug",
+                      action="store_true",
                       help="Log debug info to stderr")
-    return parser
+    parser.add_argument("qml_file",
+                        help="The QML file to parse")
+    return parser.parse_args()
 
 
 def main():
-    opt_parser = create_opt_parser()
-    options, args = opt_parser.parse_args()
-    if len(args) != 1:
-        opt_parser.error("Invalid number of arguments")
+    args = parse_args()
 
-    name = args[0]
+    name = args.qml_file
     text = open(name).read()
 
     lexer = Lexer(text)
@@ -66,12 +64,12 @@ def main():
         logging.error("Failed to tokenize %s" % name)
         row, msg = info_for_error_at(text, exc.idx)
         logging.error("Lexer error line %d: %s\n%s", row, exc, msg)
-        if options.debug:
+        if args.debug:
             raise
         else:
             return -1
 
-    if options.debug:
+    if args.debug:
         for token in lexer.tokens:
             print "%20s %s" % (token.type, token.value)
 
@@ -84,7 +82,7 @@ def main():
         logging.error("Failed to parse %s" % name)
         row, msg = info_for_error_at(text, exc.token.idx)
         logging.error("Lexer error line %d: %s\n%s", row, exc, msg)
-        if options.debug:
+        if args.debug:
             raise
         else:
             return -1
