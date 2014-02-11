@@ -82,7 +82,8 @@ class Test(object):
 
 
 def main():
-    script_dir = os.path.dirname(__file__)
+    script_dir = os.path.dirname(__file__) or "."
+
     default_doxyqml = os.path.abspath(os.path.join(script_dir, os.pardir, os.pardir, "bin", "doxyqml"))
 
     parser = argparse.ArgumentParser()
