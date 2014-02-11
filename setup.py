@@ -15,4 +15,13 @@ setup(name="doxyqml",
     url="http://agateau.com/projects/doxyqml",
     packages=["doxyqml"],
     scripts=["bin/doxyqml"],
-    )
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Plugins",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: BSD License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 2",
+        "Topic :: Documentation",
+    ]
+)
