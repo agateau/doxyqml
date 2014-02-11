@@ -1,6 +1,8 @@
 include bin/doxyqml
 recursive-include doxyqml *.py
 recursive-include tests *.py
+recursive-include tests/functional/*/input *.qml
+recursive-include tests/functional/*/expected *.qml.cpp
 include setup.py
 include NEWS
 include LICENSE
