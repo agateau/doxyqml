@@ -10,9 +10,22 @@ Create tarball:
 
     python setup.py sdist --formats=bztar
 
-Run unit tests
+Install tarball in virtual env:
 
-Run functional tests
+    virtualenv /tmp/doxyqml
+    . /tmp/doxyqml/bin/activate
+    cd /tmp/doxyqml
+    tar xf doxyqml-$version.tar.bz2
+    cd doxyqml-$version
+    python setup.py install
+
+Run unit tests:
+
+    python tests/unit/tests.py
+
+Run functional tests:
+
+    python tests/functional/tests.py
 
 If ok, create "x.y.z" tag:
 
