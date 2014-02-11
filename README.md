@@ -5,7 +5,11 @@ documentation.
 
 # Installing
 
-Doxyqml uses the standard Python setup tools, so you can install it with:
+Doxyqml uses the standard Python setup tools, so you can install it with pip:
+
+    pip install doxyqml
+
+or manually with:
 
     python setup.py install
 

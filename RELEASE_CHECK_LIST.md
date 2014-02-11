@@ -23,6 +23,10 @@ Push:
     git push
     git push --tags
 
+Publish on PyPI:
+
+    python setup.py sdist --formats=bztar upload
+
 Update project page
 
 Blog

@@ -1,2 +1,14 @@
+# 2014.02.11 - 0.2.0
+
+- Port to argparse (Aurélien Gâteau)
+- Add functional tests (Aurélien Gâteau)
+- Keep all comments, necessary to support features like @cond/@endcond (Aurélien Gâteau)
+- Add support for readonly properties (Burkhard Daniel)
+- Support for anonymous function (Niels Madan)
+- Improve handling of unknown arguments (Aurélien Gâteau)
+- Add support for \return and \param in addition to @return and @param (Aurélien Gâteau)
+- Make tests.py executable (Aurélien Gâteau)
+
 # 2012.11.21 - 0.1.0
+
 - First release
