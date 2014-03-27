@@ -19,6 +19,7 @@ class QmlClass(object):
         self.base_name = ""
         self.header_comments = []
         self.elements = []
+        self.imports = []
 
         if version:
             self.header_comments.append(QmlClass.VERSION_COMMENT % version)
@@ -39,6 +40,10 @@ class QmlClass(object):
     def add_header_comment(self, obj):
         self.header_comments.append(obj)
 
+    def add_import(self, decl):
+        args = decl.split(' ')
+        self.imports.append(args[1])
+
     def add_pragma(self, decl):
         args = decl.split(' ', 2)[1].strip()
 
@@ -50,6 +55,8 @@ class QmlClass(object):
 
         lst = []
 
+        for module in self.imports:
+            lst.append("using namespace %s;" % module.replace('.', '::'))
         if len(name) > 1:
             lst.append("namespace %s {" % '::'.join(name[:-1]))
 
