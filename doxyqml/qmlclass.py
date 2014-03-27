@@ -11,6 +11,8 @@ def post_process_type(rx, text, type):
     return text, type
 
 class QmlClass(object):
+    SINGLETON_COMMENT = "/** @remark This component is a singleton */"
+
     def __init__(self, name):
         self.name = name
         self.base_name = ""
@@ -31,6 +33,12 @@ class QmlClass(object):
 
     def add_header_comment(self, obj):
         self.header_comments.append(obj)
+
+    def add_pragma(self, decl):
+        args = decl.split(' ', 2)[1].strip()
+
+        if args.lower() == "singleton":
+            self.header_comments.append(QmlClass.SINGLETON_COMMENT)
 
     def __str__(self):
         lst = []
