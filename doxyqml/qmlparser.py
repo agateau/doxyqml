@@ -134,6 +134,8 @@ def parse_header(reader, cls):
             cls.add_header_comment(token.value)
         elif token.type == lexer.IMPORT:
             pass
+        elif token.type == lexer.PRAGMA:
+            cls.add_pragma(token.value)
         elif token.type == lexer.ELEMENT:
             cls.base_name = token.value
             return
