@@ -51,15 +51,22 @@ def parse_args():
                         help="The QML file to parse")
     return parser.parse_args()
 
-def find_qmldir(qml_file):
+def find_qmldir_file(qml_file):
     dir = os.path.dirname(qml_file)
 
     while True:
+        # Check if `dir` contains a file of the name "qmldir".
         name = os.path.join(dir, 'qmldir')
 
         if os.path.isfile(name):
             return name
 
+        # Pick parent of `dir`, but abort if we reached the root. Checking
+        # for the root is slightly tricky: On POSIX platforms forms we have
+        # `dirname("/home")` and `dirname("/")` both returning "/". In
+        # opposition to that `dirname("C:/Users")` on Windows returns just
+        # "C:". This is pretty bad, since "C:" is not an absolute path and
+        # therefore `dirname("C:")` returns just an empty string ("").
         parent = os.path.dirname(dir)
 
         if (parent or dir) == dir:
@@ -72,7 +79,7 @@ def find_classname(qml_file):
     classversion = None
     modulename = ''
 
-    qmldir = find_qmldir(qml_file)
+    qmldir = find_qmldir_file(qml_file)
 
     if qmldir:
         text = open(qmldir).read()
