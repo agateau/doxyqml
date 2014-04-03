@@ -61,15 +61,13 @@ def find_qmldir_file(qml_file):
         if os.path.isfile(name):
             return name
 
-        # Pick parent of `dir`, but abort if we reached the root. Checking
-        # for the root is slightly tricky: On POSIX platforms forms we have
-        # `dirname("/home")` and `dirname("/")` both returning "/". In
-        # opposition to that `dirname("C:/Users")` on Windows returns just
-        # "C:". This is pretty bad, since "C:" is not an absolute path and
-        # therefore `dirname("C:")` returns just an empty string ("").
+        # Pick parent of `dir`. Abort once parent stops changing,
+        # either because we reached the root directory, or because
+        # relative paths were used and we reached the currrent
+        # working directory.
         parent = os.path.dirname(dir)
 
-        if (parent or dir) == dir:
+        if parent == dir:
             return None
 
         dir = parent
