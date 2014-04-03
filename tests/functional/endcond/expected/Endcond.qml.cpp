@@ -1,3 +1,4 @@
+using namespace QtQuick;
 class Endcond : public Item {
 public:
 /**

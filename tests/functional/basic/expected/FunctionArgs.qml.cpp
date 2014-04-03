@@ -1,3 +1,4 @@
+using namespace QtQuick;
 /*
  * Header bla
  */
