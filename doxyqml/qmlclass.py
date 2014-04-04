@@ -12,12 +12,18 @@ def post_process_type(rx, text, type):
 
 class QmlClass(object):
     SINGLETON_COMMENT = "/** @remark This component is a singleton */"
+    VERSION_COMMENT = "/** @since %s */"
 
-    def __init__(self, name):
+    def __init__(self, name, version):
         self.name = name
         self.base_name = ""
         self.header_comments = []
         self.elements = []
+        self.imports = []
+
+        if version:
+            self.header_comments.append(QmlClass.VERSION_COMMENT % version)
+
 
     def get_properties(self):
         return [x for x in self.elements if isinstance(x, QmlProperty)]
@@ -34,6 +40,10 @@ class QmlClass(object):
     def add_header_comment(self, obj):
         self.header_comments.append(obj)
 
+    def add_import(self, decl):
+        args = decl.split(' ')
+        self.imports.append(args[1])
+
     def add_pragma(self, decl):
         args = decl.split(' ', 2)[1].strip()
 
@@ -41,12 +51,24 @@ class QmlClass(object):
             self.header_comments.append(QmlClass.SINGLETON_COMMENT)
 
     def __str__(self):
+        name = self.name.split('.')
+
         lst = []
+
+        for module in self.imports:
+            lst.append("using namespace %s;" % module.replace('.', '::'))
+        if len(name) > 1:
+            lst.append("namespace %s {" % '::'.join(name[:-1]))
+
         lst.extend([str(x) for x in self.header_comments])
-        lst.append("class %s : public %s {" % (self.name, self.base_name))
+        lst.append("class %s : public %s {" % (name[-1], self.base_name))
         lst.append("public:")
         lst.extend([str(x) for x in self.elements])
         lst.append("};")
+
+        if len(name) > 1:
+            lst.append("}")
+
         return "\n".join(lst)
 
 

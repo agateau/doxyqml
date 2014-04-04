@@ -10,6 +10,15 @@ import shutil
 import sys
 import subprocess
 
+def list_files(topdir):
+    result = []
+
+    for root, dirs, files in os.walk(topdir):
+        for name in files:
+            subdir = root[len(topdir) + 1:]
+            result.append(subdir and os.path.join(subdir, name) or name)
+
+    return result
 
 class Test(object):
     def __init__(self, name, executable):
@@ -26,10 +35,16 @@ class Test(object):
             shutil.rmtree(self.output_dir)
         os.mkdir(self.output_dir)
 
-        for name in os.listdir(self.input_dir):
+        for name in list_files(self.input_dir):
             if not name.endswith(".qml"):
                 continue
+
             out_path = os.path.join(self.output_dir, name + ".cpp")
+            out_dir = os.path.dirname(out_path)
+
+            if not os.path.isdir(out_dir):
+                os.makedirs(out_dir)
+
             with open(out_path, "w") as out:
                 ret = subprocess.call(
                     [self.executable, name],
@@ -48,7 +63,7 @@ class Test(object):
 
 
     def compare(self):
-        lst = os.listdir(self.expected_dir)
+        lst = list_files(self.expected_dir)
         if not lst:
             self.error("expected_dir '{}' is empty".format(self.expected_dir))
             return False

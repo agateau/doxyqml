@@ -2,6 +2,7 @@
 import argparse
 import logging
 import os
+import re
 import sys
 
 import qmlparser
@@ -50,6 +51,57 @@ def parse_args():
                         help="The QML file to parse")
     return parser.parse_args()
 
+def find_qmldir_file(qml_file):
+    dir = os.path.dirname(qml_file)
+
+    while True:
+        # Check if `dir` contains a file of the name "qmldir".
+        name = os.path.join(dir, 'qmldir')
+
+        if os.path.isfile(name):
+            return name
+
+        # Pick parent of `dir`. Abort once parent stops changing,
+        # either because we reached the root directory, or because
+        # relative paths were used and we reached the currrent
+        # working directory.
+        parent = os.path.dirname(dir)
+
+        if parent == dir:
+            return None
+
+        dir = parent
+
+def find_classname(qml_file):
+    classname = os.path.basename(qml_file).split(".")[0]
+    classversion = None
+    modulename = ''
+
+    qmldir = find_qmldir_file(qml_file)
+
+    if qmldir:
+        text = open(qmldir).read()
+        match = re.match(r'^module\s+((?:\w|\.)+)\s*$', text, re.MULTILINE)
+
+        if match:
+            modulename = match.group(1)
+
+        basedir = os.path.dirname(qmldir)
+
+        rx_object_type = re.compile(r'^(\w+)\s+(\d+(?:\.\d+)*)\s+(\S+)\s*$', re.MULTILINE)
+
+        for name, version, path in rx_object_type.findall(text):
+            filename = os.path.join(basedir, path)
+
+            if os.path.isfile(filename) and os.path.samefile(qml_file, filename):
+                classversion = version
+                classname = name
+                break
+
+    if modulename:
+        classname = modulename + '.' + classname
+
+    return classname, classversion
 
 def main():
     args = parse_args()
@@ -73,8 +125,8 @@ def main():
         for token in lexer.tokens:
             print "%20s %s" % (token.type, token.value)
 
-    classname = os.path.basename(name).split(".")[0]
-    qml_class = QmlClass(classname)
+    classname, classversion = find_classname(name)
+    qml_class = QmlClass(classname, classversion)
 
     try:
         qmlparser.parse(lexer.tokens, qml_class)
