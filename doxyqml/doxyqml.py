@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
+
 import argparse
 import logging
 import os
@@ -41,14 +44,18 @@ def info_for_error_at(text, idx):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        version=VERSION,
+        prog="doxyqml",
         description=DESCRIPTION,
         )
     parser.add_argument("-d", "--debug",
-                      action="store_true",
-                      help="Log debug info to stderr")
+                        action="store_true",
+                        help="Log debug info to stderr")
+    parser.add_argument('--version',
+                        action='version',
+                        version='%%(prog)s %s' % VERSION)
     parser.add_argument("qml_file",
                         help="The QML file to parse")
+
     return parser.parse_args()
 
 def find_qmldir_file(qml_file):
@@ -112,7 +119,7 @@ def main():
     lexer = Lexer(text)
     try:
         lexer.tokenize()
-    except LexerError, exc:
+    except LexerError as exc:
         logging.error("Failed to tokenize %s" % name)
         row, msg = info_for_error_at(text, exc.idx)
         logging.error("Lexer error line %d: %s\n%s", row, exc, msg)
@@ -123,14 +130,14 @@ def main():
 
     if args.debug:
         for token in lexer.tokens:
-            print "%20s %s" % (token.type, token.value)
+            print("%20s %s" % (token.type, token.value))
 
     classname, classversion = find_classname(name)
     qml_class = QmlClass(classname, classversion)
 
     try:
         qmlparser.parse(lexer.tokens, qml_class)
-    except qmlparser.QmlParserError, exc:
+    except qmlparser.QmlParserError as exc:
         logging.error("Failed to parse %s" % name)
         row, msg = info_for_error_at(text, exc.token.idx)
         logging.error("Lexer error line %d: %s\n%s", row, exc, msg)
@@ -139,7 +146,7 @@ def main():
         else:
             return -1
 
-    print qml_class
+    print(qml_class)
 
     return 0
 
