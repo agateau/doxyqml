@@ -14,7 +14,7 @@ class QmlClass(object):
     SINGLETON_COMMENT = "/** @remark This component is a singleton */"
     VERSION_COMMENT = "/** @since %s */"
 
-    def __init__(self, name, version):
+    def __init__(self, name, version = None):
         self.name = name
         self.base_name = ""
         self.header_comments = []
