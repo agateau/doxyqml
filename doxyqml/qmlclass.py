@@ -18,6 +18,7 @@ class QmlClass(object):
         self.name = name
         self.base_name = ""
         self.header_comments = []
+        self.footer_comments = []
         self.elements = []
         self.imports = []
 
@@ -39,6 +40,9 @@ class QmlClass(object):
 
     def add_header_comment(self, obj):
         self.header_comments.append(obj)
+
+    def add_footer_comment(self, obj):
+        self.footer_comments.append(obj)
 
     def add_import(self, decl):
         args = decl.split(' ')
@@ -65,6 +69,7 @@ class QmlClass(object):
         lst.append("public:")
         lst.extend([str(x) for x in self.elements])
         lst.append("};")
+        lst.extend([str(x) for x in self.footer_comments])
 
         if len(name) > 1:
             lst.append("}")

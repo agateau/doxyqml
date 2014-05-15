@@ -142,6 +142,14 @@ def parse_header(reader, cls):
         else:
             raise QmlParserUnexpectedTokenError(token)
 
+def parse_footer(reader, cls):
+    while not reader.at_end():
+        token = reader.consume()
+        if token.type == lexer.COMMENT:
+            cls.add_footer_comment(token.value)
+        else:
+            raise QmlParserUnexpectedTokenError(token)
+
 
 class TokenReader(object):
     def __init__(self, tokens):
@@ -175,3 +183,4 @@ def parse(tokens, cls):
     reader = TokenReader(tokens)
     parse_header(reader, cls)
     parse_class_definition(reader, cls)
+    parse_footer(reader, cls)
