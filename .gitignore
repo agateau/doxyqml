@@ -1,4 +1,5 @@
 tests/manual/html
+tests/manual/doxygen_sqlite3.db
 *.pyc
 MANIFEST
 dist

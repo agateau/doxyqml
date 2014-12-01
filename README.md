@@ -15,19 +15,25 @@ or manually with:
 
 # Telling Doxygen to use Doxyqml
 
-Edit your Doxygen file: first you need to set the `FILTER_PATTERNS` key to
-associate .qml files with Doxyqml:
+To tell Doxygen about Doxyqml you must make a few changes to your Doxygen file.
 
-    FILTER_PATTERNS = *.qml=doxyqml
+1. Add the .qml extension to the `FILTER_PATTERNS` key:
 
-Note: On Windows you may need to use the full path of the `doxyqml.py` file
-instead. For example if you installed Python 2.7 in `C:\Python27`, use this:
+        FILTER_PATTERNS = *.qml=doxyqml
 
-    FILTER_PATTERNS = *.qml=C:\Python27\Lib\site-packages\doxyqml\doxyqml.py
+    Note: On Windows you may need to use the full path of the `doxyqml.py` file
+    instead. For example if you installed Python 2.7 in `C:\Python27`, use this:
 
-Then you must add .qml files to `FILE_PATTERNS`:
+        FILTER_PATTERNS = *.qml=C:\Python27\Lib\site-packages\doxyqml\doxyqml.py
 
-    FILE_PATTERNS = *.qml
+2. Add the .qml extension to `FILE_PATTERNS`:
+
+        FILE_PATTERNS = *.qml
+
+3. Since Doxygen 1.8.8, you must also add the .qml extension to
+   `EXTENSION_MAPPING`:
+
+        EXTENSION_MAPPING = qml=C++
 
 # Documenting types
 
