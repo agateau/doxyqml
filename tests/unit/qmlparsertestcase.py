@@ -2,8 +2,8 @@ from unittest import TestCase
 
 from lexer import Lexer
 
-from qmlclass import QmlClass
-import qmlparser
+from doxyqml.qmlclass import QmlClass
+from doxyqml import qmlparser
 
 
 class QmlParserTestCase(TestCase):

@@ -1,7 +1,7 @@
 import re
 from unittest import TestCase
 
-from qmlclass import QmlFunction, QmlArgument, QmlProperty
+from doxyqml.qmlclass import QmlFunction, QmlArgument, QmlProperty
 
 class QmlFunctionTestCase(TestCase):
     def test_post_process_doc_at(self):

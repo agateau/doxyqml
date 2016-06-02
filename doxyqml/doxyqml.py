@@ -8,9 +8,9 @@ import os
 import re
 import sys
 
-import qmlparser
-from lexer import Lexer, LexerError
-from qmlclass import QmlClass
+from . import qmlparser
+from .lexer import Lexer, LexerError
+from .qmlclass import QmlClass
 
 
 VERSION = "0.2.0"
