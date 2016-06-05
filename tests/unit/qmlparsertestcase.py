@@ -36,12 +36,12 @@ class QmlParserTestCase(TestCase):
         self.assertEqual(properties[0].name, "v1")
         self.assertEqual(properties[0].type, "int")
         self.assertEqual(properties[0].doc, "/// v1 doc")
-        self.assert_(properties[0].is_default)
+        self.assertTrue(properties[0].is_default)
 
         self.assertEqual(properties[1].name, "v2")
         self.assertEqual(properties[1].type, "int")
         self.assertEqual(properties[1].doc, "/// v2 doc")
-        self.assert_(not properties[1].is_default)
+        self.assertFalse(properties[1].is_default)
 
     def test_readonly_property(self):
         src = """Item {
@@ -59,12 +59,12 @@ class QmlParserTestCase(TestCase):
         self.assertEqual(properties[0].name, "v1")
         self.assertEqual(properties[0].type, "int")
         self.assertEqual(properties[0].doc, "/// v1 doc")
-        self.assert_(properties[0].is_readonly)
+        self.assertTrue(properties[0].is_readonly)
 
         self.assertEqual(properties[1].name, "v2")
         self.assertEqual(properties[1].type, "int")
         self.assertEqual(properties[1].doc, "/// v2 doc")
-        self.assert_(not properties[1].is_readonly)
+        self.assertFalse(properties[1].is_readonly)
 
     def test_var_property(self):
         src = """Item {
