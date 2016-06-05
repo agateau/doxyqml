@@ -1,7 +1,6 @@
 from unittest import TestCase
 
-from lexer import Lexer
-
+from doxyqml.lexer import Lexer
 from doxyqml.qmlclass import QmlClass
 from doxyqml import qmlparser
 
