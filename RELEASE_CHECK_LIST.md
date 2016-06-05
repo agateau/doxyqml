@@ -8,24 +8,24 @@ Commit
 
 Create tarball:
 
-    python setup.py sdist --formats=bztar
+    ./setup.py sdist --formats=bztar
 
 Install tarball in virtual env:
 
-    virtualenv /tmp/doxyqml
+    virtualenv --python python3 /tmp/doxyqml
     . /tmp/doxyqml/bin/activate
     cd /tmp/doxyqml
     tar xf doxyqml-$version.tar.bz2
     cd doxyqml-$version
-    python setup.py install
+    ./setup.py install
 
 Run unit tests:
 
-    python tests/unit/tests.py
+    ./tests/unit/tests.py
 
 Run functional tests:
 
-    python tests/functional/tests.py
+    ./tests/functional/tests.py
 
 If ok, create "x.y.z" tag:
 
@@ -38,7 +38,7 @@ Push:
 
 Publish on PyPI:
 
-    python setup.py sdist --formats=bztar upload
+    ./setup.py sdist --formats=bztar upload
 
 Update project page
 
