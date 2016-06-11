@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import unittest
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "doxyqml"))
+doxyqml_path = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)
+sys.path.insert(0, doxyqml_path)
 
 from qmlclasstestcase import *
 from qmlparsertestcase import *

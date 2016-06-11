@@ -7,11 +7,11 @@ documentation.
 
 Doxyqml uses the standard Python setup tools, so you can install it with pip:
 
-    pip install doxyqml
+    pip3 install doxyqml
 
 or manually with:
 
-    python setup.py install
+    python3 setup.py install
 
 # Telling Doxygen to use Doxyqml
 
@@ -22,9 +22,9 @@ To tell Doxygen about Doxyqml you must make a few changes to your Doxygen file.
         FILTER_PATTERNS = *.qml=doxyqml
 
     Note: On Windows you may need to use the full path of the `doxyqml.py` file
-    instead. For example if you installed Python 2.7 in `C:\Python27`, use this:
+    instead. For example if you installed Python 3.5 in `C:\Python35`, use this:
 
-        FILTER_PATTERNS = *.qml=C:\Python27\Lib\site-packages\doxyqml\doxyqml.py
+        FILTER_PATTERNS = *.qml=C:\Python35\Lib\site-packages\doxyqml\doxyqml.py
 
 2. Add the .qml extension to `FILE_PATTERNS`:
 

@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-from __future__ import print_function
+#!/usr/bin/env python3
 
 import argparse
 import logging
@@ -8,9 +6,9 @@ import os
 import re
 import sys
 
-import qmlparser
-from lexer import Lexer, LexerError
-from qmlclass import QmlClass
+from . import qmlparser
+from .lexer import Lexer, LexerError
+from .qmlclass import QmlClass
 
 
 VERSION = "0.2.0"
