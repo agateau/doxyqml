@@ -77,14 +77,6 @@ def find_qmldir_file(qml_file):
 
         dir = parent
 
-def is_same_file(path1, path2):
-    def normalized(path):
-        return os.path.abspath(os.path.normcase(os.path.normpath(path)))
-
-    if sys.platform == 'win32':
-        return normalized(path1) == normalized(path2)
-    else:
-        return os.path.samefile(path1, path2)
 
 def find_classname(qml_file):
     classname = os.path.basename(qml_file).split(".")[0]
@@ -107,7 +99,7 @@ def find_classname(qml_file):
         for name, version, path in rx_object_type.findall(text):
             filename = os.path.join(basedir, path)
 
-            if os.path.isfile(filename) and is_same_file(qml_file, filename):
+            if os.path.isfile(filename) and os.path.samefile(qml_file, filename):
                 classversion = version
                 classname = name
                 break
