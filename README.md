@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/agateau/doxyqml.svg?branch=master)](https://travis-ci.org/agateau/doxyqml)
+
 # Goals
 
 Doxyqml turns .qml into pseudo-C++ which Doxygen can then use to generate
