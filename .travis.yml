@@ -11,5 +11,9 @@ before_install:
     - sudo apt-get install -qq doxygen
 
 script:
+    - ./setup.py sdist --formats=bztar
+    - tar xf dist/doxyqml-*.tar.bz2
+    - cd doxyqml-*
     - tests/unit/tests.py
     - tests/functional/tests.py
+    - ./setup.py install
