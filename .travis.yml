@@ -14,6 +14,6 @@ script:
     - ./setup.py sdist --formats=bztar
     - tar xf dist/doxyqml-*.tar.bz2
     - cd doxyqml-*
+    - ./setup.py install
     - tests/unit/tests.py
     - tests/functional/tests.py
-    - ./setup.py install
