@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
-from distutils.core import setup
+from setuptools import setup
 
 from doxyqml import doxyqml
+
 
 setup(name="doxyqml",
     version=doxyqml.VERSION,
@@ -14,7 +15,11 @@ setup(name="doxyqml",
     platforms=["any"],
     url="http://agateau.com/projects/doxyqml",
     packages=["doxyqml"],
-    scripts=["bin/doxyqml"],
+    entry_points={
+        'console_scripts': [
+            'doxyqml = doxyqml.doxyqml:main',
+        ]
+    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Plugins",
