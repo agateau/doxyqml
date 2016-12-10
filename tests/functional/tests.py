@@ -97,7 +97,7 @@ class Test(object):
 def main():
     script_dir = os.path.dirname(__file__) or "."
 
-    default_doxyqml = os.path.abspath(os.path.join(script_dir, os.pardir, os.pardir, "bin", "doxyqml"))
+    default_doxyqml = os.path.abspath(os.path.join(script_dir, os.pardir, os.pardir, "doxyqml", "main.py"))
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-u", "--update",

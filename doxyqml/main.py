@@ -6,13 +6,9 @@ import os
 import re
 import sys
 
-from . import qmlparser
-from .lexer import Lexer, LexerError
-from .qmlclass import QmlClass
-
-
-VERSION = "0.3.0"
-DESCRIPTION = "Doxygen input filter for QML files"
+from doxyqml import qmlparser, __version__, DESCRIPTION
+from doxyqml.lexer import Lexer, LexerError
+from doxyqml.qmlclass import QmlClass
 
 
 def coord_for_idx(text, idx):
@@ -50,7 +46,7 @@ def parse_args():
                         help="Log debug info to stderr")
     parser.add_argument('--version',
                         action='version',
-                        version='%%(prog)s %s' % VERSION)
+                        version='%%(prog)s %s' % __version__)
     parser.add_argument("qml_file",
                         help="The QML file to parse")
 

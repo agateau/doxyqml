@@ -3,12 +3,12 @@
 
 from setuptools import setup
 
-from doxyqml import doxyqml
+from doxyqml import __version__, DESCRIPTION
 
 
 setup(name="doxyqml",
-    version=doxyqml.VERSION,
-    description=doxyqml.DESCRIPTION,
+    version=__version__,
+    description=DESCRIPTION,
     author="Aurélien Gâteau",
     author_email="mail@agateau.com",
     license="BSD",
@@ -17,7 +17,7 @@ setup(name="doxyqml",
     packages=["doxyqml"],
     entry_points={
         'console_scripts': [
-            'doxyqml = doxyqml.doxyqml:main',
+            'doxyqml = doxyqml.main:main',
         ]
     },
     classifiers=[
