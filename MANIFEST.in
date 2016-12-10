@@ -1,4 +1,3 @@
-include bin/doxyqml bin/fromsrc.py
 recursive-include doxyqml *.py
 recursive-include tests *.py
 recursive-include tests/functional/*/input *.qml qmldir
