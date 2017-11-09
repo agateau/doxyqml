@@ -48,6 +48,10 @@ def parse_args():
     parser.add_argument("-d", "--debug",
                         action="store_true",
                         help="Log debug info to stderr")
+    parser.add_argument("--namespace",
+                        action='append',
+                        default=[],
+                        help="Wrap the generated C++ classes in NAMESPACE")
     parser.add_argument('--version',
                         action='version',
                         version='%%(prog)s %s' % VERSION)
@@ -78,7 +82,7 @@ def find_qmldir_file(qml_file):
         dir = parent
 
 
-def find_classname(qml_file):
+def find_classname(qml_file, namespace=None):
     classname = os.path.basename(qml_file).split(".")[0]
     classversion = None
     modulename = ''
@@ -107,12 +111,16 @@ def find_classname(qml_file):
     if modulename:
         classname = modulename + '.' + classname
 
+    if namespace:
+        classname = '.'.join(namespace) + '.' + classname
+
     return classname, classversion
 
 def main():
     args = parse_args()
 
     name = args.qml_file
+    namespace = args.namespace
     text = open(name).read()
 
     lexer = Lexer(text)
@@ -131,7 +139,7 @@ def main():
         for token in lexer.tokens:
             print("%20s %s" % (token.type, token.value))
 
-    classname, classversion = find_classname(name)
+    classname, classversion = find_classname(name, namespace)
     qml_class = QmlClass(classname, classversion)
 
     try:
