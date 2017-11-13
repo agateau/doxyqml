@@ -57,6 +57,7 @@ class Lexer(object):
             if self.idx == len(self.text):
                 break
             self.apply_tokenizers()
+        self.fixup_tokens()
 
 
     def advance(self):
@@ -85,6 +86,14 @@ class Lexer(object):
 
         raise LexerError("No lexer matched", self.idx)
 
+    def fixup_tokens(self):
+        for i, t in enumerate(self.tokens):
+            # Fix a tokenization of a property named "property". For example:
+            #   property string property: "foo"
+            if (t.type == KEYWORD and t.value == "property" and i > 1 and
+                self.tokens[i-1].type == ELEMENT and
+                self.tokens[i-2].type == KEYWORD and self.tokens[i-2].value.endswith("property")):
+                self.tokens[i] = Token(ELEMENT, t.value, t.idx)
 
     def append_token(self, type, value):
         self.tokens.append(Token(type, value, self.idx))
