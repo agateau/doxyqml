@@ -121,7 +121,7 @@ def main():
 
     name = args.qml_file
     namespace = args.namespace
-    text = open(name).read()
+    text = open(name, encoding="utf-8").read()
 
     lexer = Lexer(text)
     try:
