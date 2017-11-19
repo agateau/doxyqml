@@ -94,6 +94,20 @@ class QmlParserTestCase(TestCase):
         self.assertEqual(properties[0].name, "fnProperty")
         self.assertEqual(properties[0].type, "var")
 
+    def test_property_named_property(self):
+        src = """Item {
+            property var property
+            }"""
+
+        lexer = Lexer(src)
+        lexer.tokenize()
+        qmlclass = QmlClass("Foo")
+        qmlparser.parse(lexer.tokens, qmlclass)
+
+        properties = qmlclass.get_properties()
+        self.assertEqual(properties[0].name, "property")
+        self.assertEqual(properties[0].type, "var")
+
     def test_normal_arguments(self):
         src = """Item {
                      function foo(arg1, arg2) {
