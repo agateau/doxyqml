@@ -45,7 +45,7 @@ class QmlClass(object):
         self.footer_comments.append(obj)
 
     def add_import(self, decl):
-        module = decl.split(' ')[1]
+        module = decl.split()[1]
         if module[0] == '"':
             # Ignore directory or javascript imports for now
             return

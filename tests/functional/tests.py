@@ -45,7 +45,7 @@ class Test(object):
 
             with open(out_path, "w") as out:
                 ret = subprocess.call(
-                    [self.executable, name],
+                    [sys.executable, self.executable, name],
                     stdout=out,
                     cwd=self.input_dir)
                 if ret != 0:
