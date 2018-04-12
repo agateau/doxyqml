@@ -108,6 +108,24 @@ class QmlParserTestCase(TestCase):
         self.assertEqual(properties[0].name, "property")
         self.assertEqual(properties[0].type, "var")
 
+    def test_multiline_string(self):
+        src = """Item {
+            prop1: "A string that spans \\
+            multiple lines"
+            /// prop2 doc
+            property string prop2: "bar"
+            }"""
+
+        lexer = Lexer(src)
+        lexer.tokenize()
+        qmlclass = QmlClass("Foo")
+        qmlparser.parse(lexer.tokens, qmlclass)
+
+        properties = qmlclass.get_properties()
+        self.assertEqual(properties[0].name, "prop2")
+        self.assertEqual(properties[0].type, "string")
+        self.assertEqual(properties[0].doc, "/// prop2 doc")
+
     def test_normal_arguments(self):
         src = """Item {
                      function foo(arg1, arg2) {
