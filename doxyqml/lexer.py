@@ -46,7 +46,7 @@ class Lexer(object):
             Tokenizer(ELEMENT, re.compile(r"\w[\w.<>]*")),
             Tokenizer(CHAR, re.compile(".")),
             ]
-        self.text = text
+        self.text = text.replace('\\\n', '\n')
         self.idx = 0
         self.tokens = []
 
