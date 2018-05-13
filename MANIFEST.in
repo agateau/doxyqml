@@ -3,6 +3,7 @@ recursive-include doxyqml *.py
 recursive-include tests *.py
 recursive-include tests/functional/*/input *.qml qmldir
 recursive-include tests/functional/*/expected *.qml.cpp
+include tests/run-coverage
 include setup.py
 include NEWS
 include LICENSE
