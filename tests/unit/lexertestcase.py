@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from doxyqml.lexer import Lexer, Token, IMPORT, PRAGMA, STRING, COMMENT
+from doxyqml.lexer import Lexer, Token, IMPORT, PRAGMA, STRING, COMMENT, KEYWORD, ELEMENT, \
+        BLOCK_START
 
 
 class LexerTestCase(TestCase):
@@ -40,3 +41,13 @@ class LexerTestCase(TestCase):
         lexer.tokenize()
         self.assertEqual(lexer.tokens[0], Token(COMMENT, '/* hello\nworld */', 0))
         self.assertEqual(lexer.tokens[1], Token(COMMENT, '/* good bye\nworld */', 17))
+
+    def test_property_named_property(self):
+        src = "Item { property var property }"
+        lexer = Lexer(src)
+        lexer.tokenize()
+        self.assertEqual(lexer.tokens[0], Token(ELEMENT, 'Item', 0))
+        self.assertEqual(lexer.tokens[1], Token(BLOCK_START, '{', 5))
+        self.assertEqual(lexer.tokens[2], Token(KEYWORD, 'property', 7))
+        self.assertEqual(lexer.tokens[3], Token(ELEMENT, 'var', 16))
+        self.assertEqual(lexer.tokens[4], Token(ELEMENT, 'property', 20))
