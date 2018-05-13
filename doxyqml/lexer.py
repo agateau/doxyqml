@@ -40,7 +40,7 @@ class Lexer(object):
             Tokenizer(BLOCK_START, re.compile("{")),
             Tokenizer(BLOCK_END, re.compile("}")),
             Tokenizer(IMPORT, re.compile("import\s+.*$", re.MULTILINE)),
-            Tokenizer(PRAGMA, re.compile("^pragma\s+\w.*$", re.MULTILINE)),
+            Tokenizer(PRAGMA, re.compile("pragma\s+\w.*$", re.MULTILINE)),
             Tokenizer(KEYWORD, re.compile("(default\s+property|property|readonly\s+property|signal)\s+")),
             Tokenizer(KEYWORD, re.compile("(function)\s+[^(]")),  # a named function
             Tokenizer(ELEMENT, re.compile(r"\w[\w.<>]*")),
