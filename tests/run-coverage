@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+# This script runs both unit and functional tests using [coverage][1], and
+# combine the results in one file to get the union of both tests.
+#
+# [1]: https://pypi.org/project/coverage/
+
+cd $(dirname $0)/..
+
+coverage run -p --source doxyqml tests/unit/tests.py
+coverage run -p --source doxyqml tests/functional/tests.py --import
+
+coverage combine

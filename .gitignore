@@ -5,3 +5,5 @@ MANIFEST
 dist
 .*swp
 build
+.coverage*
+htmlcov
