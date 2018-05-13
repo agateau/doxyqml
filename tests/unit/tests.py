@@ -9,6 +9,7 @@ sys.path.insert(0, doxyqml_path)
 
 from qmlclasstestcase import *
 from qmlparsertestcase import *
+from lexertestcase import *
 
 def main():
     unittest.main()
