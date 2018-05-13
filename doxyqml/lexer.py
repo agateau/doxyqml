@@ -36,6 +36,10 @@ class Lexer(object):
         self.tokenizers = [
             Tokenizer(COMMENT, re.compile(r"/\*.*?\*/", re.DOTALL)),
             Tokenizer(COMMENT, re.compile(r"//.*$", re.MULTILINE)),
+            # A double quote, then either:
+            # - anything but a double quote or a backslash
+            # - an escaped char (\n, \t...)
+            # then a double quote
             Tokenizer(STRING, re.compile(r'("([^\\"]|(\\.))*")')),
             Tokenizer(BLOCK_START, re.compile("{")),
             Tokenizer(BLOCK_END, re.compile("}")),
