@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from doxyqml.lexer import Lexer, Token, IMPORT, PRAGMA, STRING
+from doxyqml.lexer import Lexer, Token, IMPORT, PRAGMA, STRING, COMMENT
 
 
 class LexerTestCase(TestCase):
@@ -26,3 +26,17 @@ class LexerTestCase(TestCase):
         self.assertEqual(lexer.tokens[1], Token(STRING, '"world!"', 8))
         self.assertEqual(lexer.tokens[2], Token(STRING, r'"new\nline"', 17))
         self.assertEqual(lexer.tokens[3], Token(STRING, r'"qu\"ote"', 29))
+
+    def test_single_line_comment(self):
+        src = "// hello\nimport bob"
+        lexer = Lexer(src)
+        lexer.tokenize()
+        self.assertEqual(lexer.tokens[0], Token(COMMENT, '// hello', 0))
+        self.assertEqual(lexer.tokens[1], Token(IMPORT, 'import bob', 9))
+
+    def test_multi_line_comment(self):
+        src = "/* hello\nworld *//* good bye\nworld */"
+        lexer = Lexer(src)
+        lexer.tokenize()
+        self.assertEqual(lexer.tokens[0], Token(COMMENT, '/* hello\nworld */', 0))
+        self.assertEqual(lexer.tokens[1], Token(COMMENT, '/* good bye\nworld */', 17))

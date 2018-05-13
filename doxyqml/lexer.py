@@ -35,7 +35,7 @@ class Lexer(object):
     def __init__(self, text):
         self.tokenizers = [
             Tokenizer(COMMENT, re.compile(r"/\*.*?\*/", re.DOTALL)),
-            Tokenizer(COMMENT, re.compile(r"//.*$", re.MULTILINE)),
+            Tokenizer(COMMENT, re.compile(r"//.*")),
             # A double quote, then either:
             # - anything but a double quote or a backslash
             # - an escaped char (\n, \t...)
@@ -43,8 +43,8 @@ class Lexer(object):
             Tokenizer(STRING, re.compile(r'("([^\\"]|(\\.))*")')),
             Tokenizer(BLOCK_START, re.compile("{")),
             Tokenizer(BLOCK_END, re.compile("}")),
-            Tokenizer(IMPORT, re.compile(r"import\s+.*$", re.MULTILINE)),
-            Tokenizer(PRAGMA, re.compile(r"pragma\s+\w.*$", re.MULTILINE)),
+            Tokenizer(IMPORT, re.compile(r"import\s+.*")),
+            Tokenizer(PRAGMA, re.compile(r"pragma\s+\w.*")),
             Tokenizer(KEYWORD, re.compile(r"(default\s+property|property|readonly\s+property|signal)\s+")),
             Tokenizer(KEYWORD, re.compile(r"(function)\s+[^(]")),  # a named function
             Tokenizer(ELEMENT, re.compile(r"\w[\w.<>]*")),
