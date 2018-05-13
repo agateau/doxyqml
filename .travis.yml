@@ -1,7 +1,6 @@
 language: python
 
 python:
-    - "3.2"
     - "3.3"
     - "3.4"
     - "3.5"
@@ -11,10 +10,18 @@ before_install:
     - sudo apt-get update -qq
     - sudo apt-get install -qq doxygen
 
+install:
+    - pip install coverage coveralls
+
 script:
     - ./setup.py sdist --formats=bztar
     - tar xf dist/doxyqml-*.tar.bz2
     - cd doxyqml-*
-    - tests/unit/tests.py
+    - tests/run-coverage
+    # Run functional tests again, but running Doxyqml as a separate process
+    # instead of as a Python module
     - tests/functional/tests.py
     - ./setup.py install
+
+after_success:
+    coveralls

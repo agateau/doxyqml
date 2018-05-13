@@ -40,7 +40,7 @@ def info_for_error_at(text, idx):
     return row, msg
 
 
-def parse_args():
+def parse_args(argv):
     parser = argparse.ArgumentParser(
         prog="doxyqml",
         description=DESCRIPTION,
@@ -58,7 +58,7 @@ def parse_args():
     parser.add_argument("qml_file",
                         help="The QML file to parse")
 
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 def find_qmldir_file(qml_file):
     dir = os.path.dirname(qml_file)
@@ -116,8 +116,13 @@ def find_classname(qml_file, namespace=None):
 
     return classname, classversion
 
-def main():
-    args = parse_args()
+def main(argv=None, out=None):
+    if argv is None:
+        argv = sys.argv[1:]
+    if out is None:
+        out == sys.stdout
+
+    args = parse_args(argv)
 
     name = args.qml_file
     namespace = args.namespace
@@ -153,7 +158,7 @@ def main():
         else:
             return -1
 
-    print(qml_class)
+    print(qml_class, file=out)
 
     return 0
 
