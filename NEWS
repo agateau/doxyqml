@@ -1,3 +1,12 @@
+# 2018.05.19 - 0.4.0
+
+- Add support for wrapping generated C++ code in a namespace (Taylor Braun-Jones)
+- Explicitly specify the encoding of the QML input files as utf-8 (Taylor Braun-Jones)
+- Fix parsing of properties named "property" (Taylor Braun-Jones)
+- Fix parsing of multiline text strings (Taylor Braun-Jones)
+- Made parsing of pragma and imports more resilient to spaces before or after, (Sanjay Joshi, Taylor Braun-Jones, Aurelien Gateau)
+- Add a script to run all tests through coverage and make Travis run it (Aurelien Gateau)
+
 # 2016.06.20 - 0.3.0
 
 - Port to Python 3 (Olivier Churlaud, Aurélien Gâteau)

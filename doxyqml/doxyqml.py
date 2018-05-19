@@ -11,7 +11,7 @@ from .lexer import Lexer, LexerError
 from .qmlclass import QmlClass
 
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 DESCRIPTION = "Doxygen input filter for QML files"
 
 
