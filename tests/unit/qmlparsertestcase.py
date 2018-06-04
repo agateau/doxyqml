@@ -16,10 +16,10 @@ class QmlParserTestCase(TestCase):
         self.assertEqual(qmlclass.base_name, "Item")
 
         functions = qmlclass.get_functions()
+        self.assertEqual(len(functions), 2)
         self.assertEqual(functions[0].name, "foo")
         self.assertEqual(functions[1].name, "bar")
-        self.assertEqual(len(functions), 2)
-
+ 
     def test_default_property(self):
         src = """Item {
             /// v1 doc
@@ -33,6 +33,7 @@ class QmlParserTestCase(TestCase):
         qmlparser.parse(lexer.tokens, qmlclass)
 
         properties = qmlclass.get_properties()
+        self.assertEqual(len(properties), 2)
         self.assertEqual(properties[0].name, "v1")
         self.assertEqual(properties[0].type, "int")
         self.assertEqual(properties[0].doc, "/// v1 doc")
@@ -56,6 +57,7 @@ class QmlParserTestCase(TestCase):
         qmlparser.parse(lexer.tokens, qmlclass)
 
         properties = qmlclass.get_properties()
+        self.assertEqual(len(properties), 2)
         self.assertEqual(properties[0].name, "v1")
         self.assertEqual(properties[0].type, "int")
         self.assertEqual(properties[0].doc, "/// v1 doc")
@@ -77,6 +79,7 @@ class QmlParserTestCase(TestCase):
         qmlparser.parse(lexer.tokens, qmlclass)
 
         properties = qmlclass.get_properties()
+        self.assertEqual(len(properties), 1)
         self.assertEqual(properties[0].name, "varProperty")
         self.assertEqual(properties[0].type, "var")
 
@@ -91,6 +94,7 @@ class QmlParserTestCase(TestCase):
         qmlparser.parse(lexer.tokens, qmlclass)
 
         properties = qmlclass.get_properties()
+        self.assertEqual(len(properties), 1)
         self.assertEqual(properties[0].name, "fnProperty")
         self.assertEqual(properties[0].type, "var")
 
@@ -108,6 +112,7 @@ class QmlParserTestCase(TestCase):
         qmlparser.parse(lexer.tokens, qmlclass)
 
         properties = qmlclass.get_properties()
+        self.assertEqual(len(properties), 1)
         self.assertEqual(properties[0].name, "prop2")
         self.assertEqual(properties[0].type, "string")
         self.assertEqual(properties[0].doc, "/// prop2 doc")
@@ -125,6 +130,7 @@ class QmlParserTestCase(TestCase):
         qmlparser.parse(lexer.tokens, qmlclass)
 
         functions = qmlclass.get_functions()
+        self.assertEqual(len(functions), 1)
         self.assertEqual(functions[0].name, "foo")
         self.assertEqual(functions[0].type, "void")
 
@@ -141,5 +147,6 @@ class QmlParserTestCase(TestCase):
         qmlparser.parse(lexer.tokens, qmlclass)
 
         functions = qmlclass.get_functions()
+        self.assertEqual(len(functions), 1)        
         self.assertEqual(functions[0].name, "foo")
         self.assertEqual(functions[0].type, "void")
