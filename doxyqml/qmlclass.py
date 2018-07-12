@@ -21,10 +21,14 @@ class QmlClass(object):
         self.footer_comments = []
         self.elements = []
         self.imports = []
+        self.topLevel = True
 
         if version:
             self.header_comments.append(QmlClass.VERSION_COMMENT % version)
 
+
+    def get_attributes(self):
+        return [x for x in self.elements if isinstance(x, QmlAttribute)]
 
     def get_properties(self):
         return [x for x in self.elements if isinstance(x, QmlProperty)]
@@ -59,7 +63,7 @@ class QmlClass(object):
 
     def __str__(self):
         name = self.name.split('.')
-
+        
         lst = []
 
         for module in self.imports:
@@ -68,7 +72,27 @@ class QmlClass(object):
             lst.append("namespace %s {" % '::'.join(name[:-1]))
 
         lst.extend([str(x) for x in self.header_comments])
-        lst.append("class %s : public %s {" % (name[-1], self.base_name))
+        
+        if not self.topLevel:
+            
+             for attr in self.get_attributes():
+                 
+                 if attr.name == "id":
+                     
+                     lst.append("private:")
+                     lst.append("%s %s;" % (name[-1], attr.value));
+                     lst.append("public:")
+        
+        
+        classDecl = "class " + name[-1]
+        
+        if len(self.base_name) > 0:
+            
+            classDecl += " : public " + self.base_name
+            
+        classDecl += " {"
+        
+        lst.append(classDecl)
         lst.append("public:")
         lst.extend([str(x) for x in self.elements])
         lst.append("};")
@@ -91,6 +115,33 @@ class QmlArgument(object):
         else:
             return self.type + " " + self.name
 
+
+class QmlAttribute(object):
+    def __init__(self):
+        self.name = ""
+        self.value = ""
+        self.type = "var"
+        self.doc = ""
+        
+    def __str__(self):
+
+        if self.name != "id":
+            
+            lst = []
+            
+            lst.append("private:")
+            
+            if len(self.doc) > 0:
+                lst.append(self.doc)
+                
+            lst.append(self.type + " " + self.name + ";")
+                
+            lst.append("public:")
+            
+            return "\n".join(lst)
+        else:
+            return ""
+    
 
 class QmlProperty(object):
     type_rx = re.compile(TYPE_RX)

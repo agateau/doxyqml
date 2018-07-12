@@ -50,6 +50,23 @@ Item {
     }
 
     Item {
+
+        id: childItem
+        
+        /** An attribute. */
+        componentAttribute: value
+        
+        /** Another attribute. */
+        component.attribute: anotherValue
+
+        /**
+         * A function in a component.
+         * @param type:string str The string to append 'a' to. 
+         * @return type:string The new string.
+         */
+        function itemFunction(str) {
+            return str + "a";
+        }
     }
 
     property /* foo */ int /* bar */ weirdProperty /* baz */ : /* foo */ 12

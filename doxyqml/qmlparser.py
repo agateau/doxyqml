@@ -1,6 +1,6 @@
 from . import lexer
 
-from .qmlclass import QmlArgument, QmlProperty, QmlFunction, QmlSignal
+from .qmlclass import QmlClass, QmlArgument, QmlProperty, QmlFunction, QmlSignal, QmlAttribute
 
 
 class QmlParserError(Exception):
@@ -28,6 +28,12 @@ def parse_class_definition(reader, cls):
         elif token.type == lexer.KEYWORD:
             done = parse_class_content(reader, cls, token, last_comment)
             last_comment = None
+        elif token.type == lexer.COMPONENT:
+            done = parse_class_component(reader, cls, token, last_comment)
+            last_comment = None
+        elif token.type == lexer.ATTRIBUTE:
+            done = parse_class_attribute(reader, cls, token, last_comment)
+            last_comment = None
         elif token.type == lexer.BLOCK_START:
             skip_block(reader)
         elif token.type == lexer.BLOCK_END:
@@ -49,6 +55,48 @@ def parse_class_content(reader, cls, token, doc):
     if doc is not None:
         obj.doc = doc
     cls.add_element(obj)
+    
+    
+def parse_class_component(reader, cls, token, doc):
+
+    obj = QmlClass(token.value, None)
+    
+    parse_class_definition(reader, obj)
+    
+    obj.topLevel = False
+    
+    if doc is not None:
+        cls.add_element(doc)
+    
+    cls.add_element(obj)
+    
+    return obj
+
+
+def parse_class_attribute(reader, cls, token, doc):
+    
+    obj = QmlAttribute()
+    
+    obj.name = token.value
+    
+    # Should be colon
+    token = reader.consume_expecting(lexer.CHAR)
+    
+    token = reader.consume()
+
+    if token.type == lexer.BLOCK_START:
+      
+        skip_block(reader)
+    else:
+      
+        obj.value = token.value
+      
+    if doc is not None:
+        obj.doc = doc
+    
+    cls.add_element(obj)
+    
+    return obj
 
 
 def parse_property(reader, property_token_value):
@@ -136,7 +184,7 @@ def parse_header(reader, cls):
             cls.add_import(token.value)
         elif token.type == lexer.PRAGMA:
             cls.add_pragma(token.value)
-        elif token.type == lexer.ELEMENT:
+        elif token.type == lexer.COMPONENT:
             cls.base_name = token.value
             return
         else:

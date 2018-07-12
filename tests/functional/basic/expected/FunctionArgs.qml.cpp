@@ -39,6 +39,27 @@ Q_PROPERTY(string block)
 int square(arg);
 /// One-line comment
 void refresh();
+private:
+Item childItem;
+public:
+class Item {
+public:
+
+private:
+/** An attribute. */
+var componentAttribute;
+public:
+private:
+/** Another attribute. */
+var component.attribute;
+public:
+/**
+         * A function in a component.
+         * @param str The string to append 'a' to. 
+         * @return The new string.
+         */
+string itemFunction(string str);
+};
 
 Q_PROPERTY(int weirdProperty)
 /* baz */
