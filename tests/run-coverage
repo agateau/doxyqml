@@ -7,7 +7,7 @@ set -e
 
 cd $(dirname $0)/..
 
-coverage run -p --source doxyqml tests/unit/tests.py
-coverage run -p --source doxyqml tests/functional/tests.py --import
+python3-coverage run -p --source doxyqml tests/unit/tests.py
+python3-coverage run -p --source doxyqml tests/functional/tests.py --import
 
-coverage combine
+python3-coverage combine

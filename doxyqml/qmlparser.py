@@ -63,10 +63,8 @@ def parse_class_component(reader, cls, token, doc):
     
     parse_class_definition(reader, obj)
     
+    obj.comment = doc
     obj.topLevel = False
-    
-    if doc is not None:
-        cls.add_element(doc)
     
     cls.add_element(obj)
     

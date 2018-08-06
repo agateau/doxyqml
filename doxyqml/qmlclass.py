@@ -66,39 +66,74 @@ class QmlClass(object):
         
         lst = []
 
-        for module in self.imports:
-            lst.append("using namespace %s;" % module.replace('.', '::'))
-        if len(name) > 1:
-            lst.append("namespace %s {" % '::'.join(name[:-1]))
+        if self.topLevel:
+
+            for module in self.imports:
+                lst.append("using namespace %s;" % module.replace('.', '::'))
+            if len(name) > 1:
+                lst.append("namespace %s {" % '::'.join(name[:-1]))
 
         lst.extend([str(x) for x in self.header_comments])
         
+        # Either the top level component, or a (grand)child component with ID.
+        # Do not show child objects without IDs.
+        showObject = True
+        
         if not self.topLevel:
             
-             for attr in self.get_attributes():
+            showObject = False
+            
+            for attr in self.get_attributes():
                  
-                 if attr.name == "id":
+                if attr.name == "id":
+
+                    if self.comment is not None:
+                        lst.append(self.comment);
+                    
+                    lst.append("%s %s;" % (name[-1], attr.value));
                      
-                     lst.append("private:")
-                     lst.append("%s %s;" % (name[-1], attr.value));
-                     lst.append("public:")
+                    showObject = True
+                    break
         
+        # For child objects with IDs, associate the object with the top-level
+        # object. This massive nesting.
+        if showObject:
         
-        classDecl = "class " + name[-1]
-        
-        if len(self.base_name) > 0:
+            classDecl = "class " + name[-1]
             
-            classDecl += " : public " + self.base_name
+            if len(self.base_name) > 0:
+                
+                classDecl += " : public " + self.base_name
+                
+            classDecl += " {"
             
-        classDecl += " {"
+            lst.append(classDecl)
+            lst.append("public:")
+            
+            if self.topLevel:
+            
+                lst.extend([str(x) for x in self.elements])
+            else:
+            
+                for x in self.elements:
+            
+                    if not isinstance(x, QmlClass):
+                
+                        lst.append(str(x))
+            
+            lst.append("};")
+            
+        if not self.topLevel:
+            
+            for x in self.elements:
         
-        lst.append(classDecl)
-        lst.append("public:")
-        lst.extend([str(x) for x in self.elements])
-        lst.append("};")
+                if isinstance(x, QmlClass):
+            
+                    lst.append(str(x))
+        
         lst.extend([str(x) for x in self.footer_comments])
 
-        if len(name) > 1:
+        if self.topLevel and len(name) > 1:
             lst.append("}")
 
         return "\n".join(lst)
@@ -129,15 +164,11 @@ class QmlAttribute(object):
             
             lst = []
             
-            lst.append("private:")
-            
             if len(self.doc) > 0:
                 lst.append(self.doc)
                 
             lst.append(self.type + " " + self.name + ";")
-                
-            lst.append("public:")
-            
+                   
             return "\n".join(lst)
         else:
             return ""
