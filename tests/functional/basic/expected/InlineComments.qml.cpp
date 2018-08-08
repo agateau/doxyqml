@@ -24,6 +24,8 @@ Q_PROPERTY(string escaped) ///< and an inline comment
 Q_PROPERTY(string block) /**< and an inline comment! ***<  //!<  */
 int square(arg); ///< Compute the arg^2. @return the result
 void refresh(); ///< Inline comment out of place (should be moved inline in the output)
+// Just some regular comment
+void reload(); ///< Inline comment for a keyword following a regular comment.
 /*!  Just for fun...
       ///< Inline comment
       //!< Inline comment

@@ -38,6 +38,11 @@ Item {
     function refresh() {
     }
 
+    // Just some regular comment
+
+    function reload() ///< Inline comment for a keyword following a regular comment.
+    {}
+
     /*!  Just for fun...
       ///< Inline comment
       //!< Inline comment

@@ -94,6 +94,7 @@ class Lexer(object):
         raise LexerError("No lexer matched", self.idx)
 
     def fixup_tokens(self):
+        plain_cmnt_rx = re.compile("/[/*][^/!*]")  # not a doxy comment
         for i, t in enumerate(self.tokens):
             # Fix tokenization of a property named "property". For example:
             #   property string property: "foo"
@@ -114,8 +115,10 @@ class Lexer(object):
                 for ii, tt in enumerate(self.tokens[i-1 : max(i-20, 0) : -1]):
                     if (tt.type == KEYWORD):
                         ins_idx = i-ii-1
-                        # Final sanity check, if previous token is another comment then bail out.
-                        if (ins_idx > 0 and self.tokens[ins_idx-1].type == COMMENT):
+                        # Final sanity check for a misplaced inline comment, 
+                        #   if previous token is another doxy comment then bail out.
+                        if (ins_idx > 0 and self.tokens[ins_idx-1].type == COMMENT and 
+                                plain_cmnt_rx.match(self.tokens[ins_idx-1].value) == None):
                             break
                         self.tokens.insert(ins_idx, self.tokens.pop(i))
                         break
