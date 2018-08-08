@@ -2,6 +2,7 @@ import logging
 import re
 
 TYPE_RX = "(?P<prefix>\s+type:)(?P<type>[\w.<>|]+)"
+INLINE_COMMENT_RX = re.compile("^/[/*][/!*]<")
 
 def post_process_type(rx, text, type):
     match = rx.search(text)
@@ -9,6 +10,9 @@ def post_process_type(rx, text, type):
         type = match.group("type")
         text = text[:match.start("prefix")] + text[match.end("type"):]
     return text, type
+
+def is_inline_comment(text):
+    return bool(INLINE_COMMENT_RX.match(text))
 
 class QmlClass(object):
     SINGLETON_COMMENT = "/** @remark This component is a singleton */"
@@ -107,16 +111,21 @@ class QmlProperty(object):
 
     def __str__(self):
         self.post_process_doc()
-        lst = [self.doc]
+        inline = is_inline_comment(self.doc)
+        lst = []
+        if not inline:
+            lst.append(self.doc + "\n")
+        if self.is_default:
+            lst.append(self.DEFAULT_PROPERTY_COMMENT + "\n")
+        elif self.is_readonly:
+            lst.append(self.READONLY_PROPERTY_COMMENT + "\n")
         lst.append("Q_PROPERTY(%s %s)" % (self.type, self.name))
-        return "\n".join(lst)
+        if inline:
+            lst.append(" " + self.doc)
+        return "".join(lst)
 
     def post_process_doc(self):
         self.doc, self.type = post_process_type(self.type_rx, self.doc, self.type)
-        if self.is_default:
-            self.doc = self.doc + "\n" + self.DEFAULT_PROPERTY_COMMENT
-        elif self.is_readonly:
-            self.doc = self.doc + "\n" + self.READONLY_PROPERTY_COMMENT
 
 
 class QmlFunction(object):
@@ -131,9 +140,14 @@ class QmlFunction(object):
     def __str__(self):
         self.post_process_doc()
         arg_string = ", ".join([str(x) for x in self.args])
-        lst = [self.doc]
+        inline = is_inline_comment(self.doc)
+        lst = []
+        if not inline:
+            lst.append(self.doc + "\n")
         lst.append("%s %s(%s);" % (self.type, self.name, arg_string))
-        return "\n".join(lst)
+        if inline:
+            lst.append(" " + self.doc)
+        return "".join(lst)
 
     def post_process_doc(self):
         def repl(match):
@@ -160,10 +174,16 @@ class QmlSignal(object):
 
     def __str__(self):
         arg_string = ", ".join([str(x) for x in self.args])
-        lst = [self.doc]
+        inline = is_inline_comment(self.doc)
+        lst = []
+        if not inline:
+            lst.append(self.doc + "\n")
         # This strange syntax makes it possible to declare a signal without
         # turning all functions defined after into signals.
         # It could be replaced with the use of Q_SIGNAL, but my version of
         # Doxygen (1.8.4) does not support it
-        lst.append("Q_SIGNALS: void %s(%s); public:" % (self.name, arg_string))
-        return "\n".join(lst)
+        lst.append("Q_SIGNALS: void %s(%s); " % (self.name, arg_string))
+        if inline:
+            lst.append(self.doc + "\n")
+        lst.append("public:")
+        return "".join(lst)

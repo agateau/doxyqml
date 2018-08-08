@@ -3,6 +3,7 @@ import re
 
 
 COMMENT = "comment"
+ICOMMENT = "inline_comment"
 STRING = "string"
 ELEMENT = "element"
 BLOCK_START = "block_start"
@@ -34,6 +35,8 @@ class Tokenizer(object):
 class Lexer(object):
     def __init__(self, text):
         self.tokenizers = [
+            Tokenizer(ICOMMENT, re.compile(r"/\*[!*]<.*?\*/", re.DOTALL)),
+            Tokenizer(ICOMMENT, re.compile(r"//[/!]<.*")),
             Tokenizer(COMMENT, re.compile(r"/\*.*?\*/", re.DOTALL)),
             Tokenizer(COMMENT, re.compile(r"//.*")),
             # A double quote, then either:
@@ -98,6 +101,26 @@ class Lexer(object):
                     self.tokens[i - 1].type == ELEMENT and
                     self.tokens[i - 2].type == KEYWORD and self.tokens[i - 2].value.endswith("property")):
                 self.tokens[i] = Token(ELEMENT, t.value, t.idx)
+            # Try to move trailing comments ahead of their parent KEYWORD. This way they get properly
+            #   handed over to the Qml* object type handlers which can do with them as they wish.
+            if (t.type == ICOMMENT and i > 1):
+                # We could keep this as a ICOMMENT if it were useful down the line.
+                # But currently this info is not passed onto Qml* classes anyway so we'll need
+                #  to detect trailing comments via a regex when parsing the individual types.
+                # To avoid looking for 2 types of comments later in the code, just change it to COMMENT.
+                self.tokens[i] = Token(COMMENT, t.value, t.idx)
+                # Iterate backwards looking for a KEYWORD. As a sanity measure
+                #   we only search back up to 20 tokens or until an "invalid" token is found.
+                for ii, tt in enumerate(self.tokens[i-1 : max(i-20, 0) : -1]):
+                    if (tt.type == KEYWORD):
+                        ins_idx = i-ii-1
+                        # Final sanity check, if previous token is another comment then bail out.
+                        if (ins_idx > 0 and self.tokens[ins_idx-1].type == COMMENT):
+                            break
+                        self.tokens.insert(ins_idx, self.tokens.pop(i))
+                        break
+                    if (tt.type in [COMMENT,IMPORT,PRAGMA]):
+                        break
 
     def append_token(self, type, value):
         self.tokens.append(Token(type, value, self.idx))
