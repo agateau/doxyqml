@@ -8,10 +8,7 @@ import shutil
 import sys
 import subprocess
 
-doxyqml_path = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)
-sys.path.insert(0, doxyqml_path)
-
-from doxyqml import doxyqml
+from doxyqml import main
 
 
 def list_files(topdir):
@@ -40,7 +37,7 @@ class ImportRunner:
         pwd = os.getcwd()
         os.chdir(cwd)
         try:
-            return doxyqml.main([qml_file], out=stdout)
+            return main.main([qml_file], out=stdout)
         finally:
             os.chdir(pwd)
 
