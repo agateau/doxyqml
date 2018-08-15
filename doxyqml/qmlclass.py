@@ -121,7 +121,7 @@ class QmlProperty(object):
 
 class QmlFunction(object):
     doc_arg_rx = re.compile(r"[@\\]param" + TYPE_RX + "\s+(?P<name>\w+)")
-    return_rx = re.compile(r"[@\\]return" + TYPE_RX)
+    return_rx = re.compile(r"[@\\]returns?" + TYPE_RX)
     def __init__(self):
         self.type = "void"
         self.name = ""
