@@ -7,7 +7,11 @@ set -e
 
 cd $(dirname $0)/..
 
-coverage run -p --source doxyqml tests/unit/tests.py
-coverage run -p --source doxyqml tests/functional/tests.py --import
+echo "# Running unit tests"
+(cd tests/unit && coverage run -p --source doxyqml tests.py)
 
-coverage combine
+echo "# Running functional tests"
+(cd tests/functional && coverage run -p --source doxyqml tests.py --import)
+
+echo "# Combining"
+coverage combine tests/unit tests/functional
