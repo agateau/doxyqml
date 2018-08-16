@@ -18,25 +18,25 @@ def parse_class_definition(reader, cls):
     token = reader.consume_wo_comments()
     if token.type != lexer.BLOCK_START:
         raise QmlParserError("Expected '{' after base class name", token)
-    last_comment = None
+    last_comment_token = None
     while not reader.at_end():
         token = reader.consume()
-        if token.type == lexer.COMMENT:
-            if last_comment:
-                cls.add_element(last_comment)
-            last_comment = token.value
+        if is_comment_token(token):
+            if last_comment_token:
+                cls.add_element(last_comment_token.value)
+            last_comment_token = token
         elif token.type == lexer.KEYWORD:
-            done = parse_class_content(reader, cls, token, last_comment)
-            last_comment = None
+            done = parse_class_content(reader, cls, token, last_comment_token)
+            last_comment_token = None
         elif token.type == lexer.BLOCK_START:
             skip_block(reader)
         elif token.type == lexer.BLOCK_END:
             break
-    if last_comment:
-        cls.add_element(last_comment)
+    if last_comment_token:
+        cls.add_element(last_comment_token.value)
 
 
-def parse_class_content(reader, cls, token, doc):
+def parse_class_content(reader, cls, token, doc_token):
     keyword = token.value
     if keyword.endswith("property"):
         obj = parse_property(reader, keyword)
@@ -46,8 +46,9 @@ def parse_class_content(reader, cls, token, doc):
         obj = parse_signal(reader)
     else:
         raise QmlParserError("Unknown keyword '%s'" % keyword, token)
-    if doc is not None:
-        obj.doc = doc
+    if doc_token is not None:
+        obj.doc = doc_token.value
+        obj.doc_is_inline = (doc_token.type == lexer.ICOMMENT)
     cls.add_element(obj)
 
 
@@ -130,7 +131,7 @@ def skip_block(reader):
 def parse_header(reader, cls):
     while not reader.at_end():
         token = reader.consume()
-        if token.type == lexer.COMMENT:
+        if is_comment_token(token):
             cls.add_header_comment(token.value)
         elif token.type == lexer.IMPORT:
             cls.add_import(token.value)
@@ -145,11 +146,13 @@ def parse_header(reader, cls):
 def parse_footer(reader, cls):
     while not reader.at_end():
         token = reader.consume()
-        if token.type == lexer.COMMENT:
+        if is_comment_token(token):
             cls.add_footer_comment(token.value)
         else:
             raise QmlParserUnexpectedTokenError(token)
 
+def is_comment_token(token):
+    return (token.type in [lexer.COMMENT, lexer.ICOMMENT])
 
 class TokenReader(object):
     def __init__(self, tokens):
@@ -164,7 +167,7 @@ class TokenReader(object):
     def consume_wo_comments(self):
         while True:
             token = self.consume()
-            if token.type != lexer.COMMENT:
+            if not is_comment_token(token):
                 return token
 
     def consume_expecting(self, type, value=None):

@@ -105,11 +105,6 @@ class Lexer(object):
             # Try to move trailing comments ahead of their parent KEYWORD. This way they get properly
             #   handed over to the Qml* object type handlers which can do with them as they wish.
             if (t.type == ICOMMENT and i > 1):
-                # We could keep this as a ICOMMENT if it were useful down the line.
-                # But currently this info is not passed onto Qml* classes anyway so we'll need
-                #  to detect trailing comments via a regex when parsing the individual types.
-                # To avoid looking for 2 types of comments later in the code, just change it to COMMENT.
-                self.tokens[i] = Token(COMMENT, t.value, t.idx)
                 # Iterate backwards looking for a KEYWORD. As a sanity measure
                 #   we only search back up to 20 tokens or until an "invalid" token is found.
                 for ii, tt in enumerate(self.tokens[i-1 : max(i-20, 0) : -1]):
@@ -117,12 +112,13 @@ class Lexer(object):
                         ins_idx = i-ii-1
                         # Final sanity check for a misplaced inline comment, 
                         #   if previous token is another doxy comment then bail out.
-                        if (ins_idx > 0 and self.tokens[ins_idx-1].type == COMMENT and 
-                                plain_cmnt_rx.match(self.tokens[ins_idx-1].value) == None):
+                        if (ins_idx > 0 and 
+                                (self.tokens[ins_idx-1].type == ICOMMENT or 
+                                (self.tokens[ins_idx-1].type == COMMENT and plain_cmnt_rx.match(self.tokens[ins_idx-1].value) == None))):
                             break
                         self.tokens.insert(ins_idx, self.tokens.pop(i))
                         break
-                    if (tt.type in [COMMENT,IMPORT,PRAGMA]):
+                    if (tt.type in [COMMENT, ICOMMENT, IMPORT, PRAGMA]):
                         break
 
     def append_token(self, type, value):
