@@ -112,10 +112,10 @@ class Lexer(object):
                 for ii, tt in enumerate(self.tokens[i-1 : max(i-20, 0) : -1]):
                     if tt.type == KEYWORD:
                         ins_idx = i-ii-1
-                        # Final sanity check for a misplaced inline comment, 
+                        # Final sanity check for a misplaced inline comment,
                         #   if previous token is another doxy comment then bail out.
-                        if (ins_idx > 0 and 
-                                (self.tokens[ins_idx-1].type == ICOMMENT or 
+                        if (ins_idx > 0 and
+                                (self.tokens[ins_idx-1].type == ICOMMENT or
                                 (self.tokens[ins_idx-1].type == COMMENT and PLAIN_COMMENT_RX.match(self.tokens[ins_idx-1].value) == None))):
                             break
                         self.tokens.insert(ins_idx, self.tokens.pop(i))
