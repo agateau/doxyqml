@@ -105,18 +105,18 @@ class Lexer(object):
                     self.tokens[i - 2].type == KEYWORD and self.tokens[i - 2].value.endswith("property")):
                 self.tokens[i] = Token(ELEMENT, t.value, t.idx)
             # Try to move trailing comments ahead of their parent KEYWORD. This way they get properly
-            #   handed over to the Qml* object type handlers which can do with them as they wish.
+            # handed over to the Qml* object type handlers which can do with them as they wish.
             if t.type == ICOMMENT and i > 1:
                 # Iterate backwards looking for a KEYWORD. As a sanity measure
-                #   we only search back up to 20 tokens or until an "invalid" token is found.
-                for ii, tt in enumerate(self.tokens[i-1 : max(i-20, 0) : -1]):
+                # we only search back up to 20 tokens or until an "invalid" token is found.
+                for ii, tt in enumerate(self.tokens[i - 1:max(i - 20, 0):-1]):
                     if tt.type == KEYWORD:
-                        ins_idx = i-ii-1
+                        ins_idx = i - ii - 1
                         # Final sanity check for a misplaced inline comment,
-                        #   if previous token is another doxy comment then bail out.
+                        # if previous token is another doxy comment then bail out.
                         if (ins_idx > 0 and
                                 (self.tokens[ins_idx-1].type == ICOMMENT or
-                                (self.tokens[ins_idx-1].type == COMMENT and PLAIN_COMMENT_RX.match(self.tokens[ins_idx-1].value) == None))):
+                                (self.tokens[ins_idx-1].type == COMMENT and not PLAIN_COMMENT_RX.match(self.tokens[ins_idx - 1].value)))):
                             break
                         self.tokens.insert(ins_idx, self.tokens.pop(i))
                         break

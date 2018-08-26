@@ -152,7 +152,7 @@ def parse_footer(reader, cls):
             raise QmlParserUnexpectedTokenError(token)
 
 def is_comment_token(token):
-    return token.type in [lexer.COMMENT, lexer.ICOMMENT]
+    return token.type in (lexer.COMMENT, lexer.ICOMMENT)
 
 class TokenReader(object):
     def __init__(self, tokens):
