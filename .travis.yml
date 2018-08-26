@@ -17,11 +17,11 @@ script:
     - ./setup.py sdist --formats=bztar
     - tar xf dist/doxyqml-*.tar.bz2
     - cd doxyqml-*
+    - ./setup.py install
     - tests/run-coverage
     # Run functional tests again, but running Doxyqml as a separate process
     # instead of as a Python module
     - tests/functional/tests.py
-    - ./setup.py install
 
 after_success:
     coveralls

@@ -8,10 +8,7 @@ import shutil
 import sys
 import subprocess
 
-doxyqml_path = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)
-sys.path.insert(0, doxyqml_path)
-
-from doxyqml import doxyqml
+from doxyqml.main import main as doxyqml_main
 
 
 def list_files(topdir):
@@ -31,7 +28,7 @@ class SubprocessRunner:
 
     def run(self, qml_file, stdout, cwd):
         return subprocess.call(
-            [sys.executable, self.executable, qml_file],
+            [self.executable, qml_file],
             stdout=stdout, cwd=cwd)
 
 
@@ -40,7 +37,7 @@ class ImportRunner:
         pwd = os.getcwd()
         os.chdir(cwd)
         try:
-            return doxyqml.main([qml_file], out=stdout)
+            return doxyqml_main([qml_file], out=stdout)
         finally:
             os.chdir(pwd)
 
@@ -121,7 +118,7 @@ class Test(object):
 def main():
     script_dir = os.path.dirname(__file__) or "."
 
-    default_doxyqml = os.path.abspath(os.path.join(script_dir, os.pardir, os.pardir, "bin", "doxyqml"))
+    default_doxyqml = "doxyqml"
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-u", "--update",
@@ -137,8 +134,7 @@ def main():
     if args.import_:
         runner = ImportRunner()
     else:
-        executable = os.path.abspath(args.doxyqml)
-        runner = SubprocessRunner(executable)
+        runner = SubprocessRunner(args.doxyqml)
 
     os.chdir(script_dir)
 

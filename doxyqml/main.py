@@ -6,13 +6,11 @@ import os
 import re
 import sys
 
-from . import qmlparser
-from .lexer import Lexer, LexerError
-from .qmlclass import QmlClass
+import doxyqml.qmlparser as qmlparser
 
-
-VERSION = "0.4.0"
-DESCRIPTION = "Doxygen input filter for QML files"
+from doxyqml import __version__, DESCRIPTION
+from doxyqml.lexer import Lexer, LexerError
+from doxyqml.qmlclass import QmlClass
 
 
 def coord_for_idx(text, idx):
@@ -54,7 +52,7 @@ def parse_args(argv):
                         help="Wrap the generated C++ classes in NAMESPACE")
     parser.add_argument('--version',
                         action='version',
-                        version='%%(prog)s %s' % VERSION)
+                        version='%%(prog)s %s' % __version__)
     parser.add_argument("qml_file",
                         help="The QML file to parse")
 

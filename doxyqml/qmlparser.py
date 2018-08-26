@@ -1,6 +1,6 @@
-from . import lexer
+import doxyqml.lexer as lexer
 
-from .qmlclass import QmlArgument, QmlProperty, QmlFunction, QmlSignal
+from doxyqml.qmlclass import QmlArgument, QmlProperty, QmlFunction, QmlSignal
 
 
 class QmlParserError(Exception):
