@@ -13,6 +13,9 @@ KEYWORD = "keyword"
 IMPORT = "import"
 PRAGMA = "pragma"
 
+# not a doxy comment
+PLAIN_COMMENT_RX = re.compile("/[/*][^/!*]")
+
 
 class LexerError(Exception):
     def __init__(self, msg, idx):
@@ -94,7 +97,6 @@ class Lexer(object):
         raise LexerError("No lexer matched", self.idx)
 
     def fixup_tokens(self):
-        plain_cmnt_rx = re.compile("/[/*][^/!*]")  # not a doxy comment
         for i, t in enumerate(self.tokens):
             # Fix tokenization of a property named "property". For example:
             #   property string property: "foo"
@@ -114,7 +116,7 @@ class Lexer(object):
                         #   if previous token is another doxy comment then bail out.
                         if (ins_idx > 0 and 
                                 (self.tokens[ins_idx-1].type == ICOMMENT or 
-                                (self.tokens[ins_idx-1].type == COMMENT and plain_cmnt_rx.match(self.tokens[ins_idx-1].value) == None))):
+                                (self.tokens[ins_idx-1].type == COMMENT and PLAIN_COMMENT_RX.match(self.tokens[ins_idx-1].value) == None))):
                             break
                         self.tokens.insert(ins_idx, self.tokens.pop(i))
                         break
