@@ -104,19 +104,24 @@ class QmlProperty(object):
         self.is_readonly = False
         self.name = ""
         self.doc = ""
+        self.doc_is_inline = False
 
     def __str__(self):
         self.post_process_doc()
-        lst = [self.doc]
+        lst = []
+        if not self.doc_is_inline:
+            lst.append(self.doc + "\n")
+        if self.is_default:
+            lst.append(self.DEFAULT_PROPERTY_COMMENT + "\n")
+        elif self.is_readonly:
+            lst.append(self.READONLY_PROPERTY_COMMENT + "\n")
         lst.append("Q_PROPERTY(%s %s)" % (self.type, self.name))
-        return "\n".join(lst)
+        if self.doc_is_inline:
+            lst.append(" " + self.doc)
+        return "".join(lst)
 
     def post_process_doc(self):
         self.doc, self.type = post_process_type(self.type_rx, self.doc, self.type)
-        if self.is_default:
-            self.doc = self.doc + "\n" + self.DEFAULT_PROPERTY_COMMENT
-        elif self.is_readonly:
-            self.doc = self.doc + "\n" + self.READONLY_PROPERTY_COMMENT
 
 
 class QmlFunction(object):
@@ -126,14 +131,19 @@ class QmlFunction(object):
         self.type = "void"
         self.name = ""
         self.doc = ""
+        self.doc_is_inline = False
         self.args = []
 
     def __str__(self):
         self.post_process_doc()
         arg_string = ", ".join([str(x) for x in self.args])
-        lst = [self.doc]
+        lst = []
+        if not self.doc_is_inline:
+            lst.append(self.doc + "\n")
         lst.append("%s %s(%s);" % (self.type, self.name, arg_string))
-        return "\n".join(lst)
+        if self.doc_is_inline:
+            lst.append(" " + self.doc)
+        return "".join(lst)
 
     def post_process_doc(self):
         def repl(match):
@@ -156,14 +166,20 @@ class QmlSignal(object):
     def __init__(self):
         self.name = ""
         self.doc = ""
+        self.doc_is_inline = False
         self.args = []
 
     def __str__(self):
         arg_string = ", ".join([str(x) for x in self.args])
-        lst = [self.doc]
-        # This strange syntax makes it possible to declare a signal without
+        lst = []
+        if not self.doc_is_inline:
+            lst.append(self.doc + "\n")
+        lst.append("Q_SIGNALS: void %s(%s); " % (self.name, arg_string))
+        if self.doc_is_inline:
+            lst.append(self.doc + "\n")
+        # Appending "public:" here makes it possible to declare a signal without
         # turning all functions defined after into signals.
         # It could be replaced with the use of Q_SIGNAL, but my version of
         # Doxygen (1.8.4) does not support it
-        lst.append("Q_SIGNALS: void %s(%s); public:" % (self.name, arg_string))
-        return "\n".join(lst)
+        lst.append("public:")
+        return "".join(lst)
