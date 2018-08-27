@@ -150,3 +150,24 @@ class QmlParserTestCase(TestCase):
         self.assertEqual(len(functions), 1)        
         self.assertEqual(functions[0].name, "foo")
         self.assertEqual(functions[0].type, "void")
+
+    def test_signals(self):
+        src = """Item {
+                     signal userAdded(string username, int age)
+                 }"""
+
+        lexer = Lexer(src)
+        lexer.tokenize()
+        qmlclass = QmlClass("Foo")
+        qmlparser.parse(lexer.tokens, qmlclass)
+
+        signals = qmlclass.get_signals()
+        self.assertEqual(len(signals), 1)
+        signal = signals[0]
+        self.assertEqual(signal.name, "userAdded")
+
+        self.assertEqual(len(signal.args), 2)
+        self.assertEqual(signal.args[0].name, "username")
+        self.assertEqual(signal.args[0].type, "string")
+        self.assertEqual(signal.args[1].name, "age")
+        self.assertEqual(signal.args[1].type, "int")
