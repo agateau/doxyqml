@@ -26,7 +26,7 @@ def parse_class_definition(reader, cls):
                 cls.add_element(last_comment_token.value)
             last_comment_token = token
         elif token.type == lexer.KEYWORD:
-            done = parse_class_content(reader, cls, token, last_comment_token)
+            parse_class_content(reader, cls, token, last_comment_token)
             last_comment_token = None
         elif token.type == lexer.BLOCK_START:
             skip_block(reader)
