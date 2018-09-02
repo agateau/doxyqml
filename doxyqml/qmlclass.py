@@ -63,76 +63,53 @@ class QmlClass(object):
 
     def __str__(self):
         name = self.name.split('.')
-
         lst = []
-
         if self.top_level:
-
             for module in self.imports:
                 lst.append("using namespace %s;" % module.replace('.', '::'))
             if len(name) > 1:
                 lst.append("namespace %s {" % '::'.join(name[:-1]))
 
         lst.extend([str(x) for x in self.header_comments])
-        
+
         # Either the top level component, or a (grand)child component with ID.
         # Do not show child objects without IDs.
         show_object = True
-        
         if not self.top_level:
-            
             show_object = False
-            
             for attr in self.get_attributes():
-                 
                 if attr.name == "id":
-
                     if self.comment is not None:
                         lst.append(self.comment);
-                    
                     lst.append("%s %s;" % (name[-1], attr.value));
-                     
                     show_object = True
                     break
-        
+
         # For child objects with IDs, associate the object with the top-level
         # object. This avoids very deep nesting in the generated documentation.
         if show_object:
-        
             class_decl = "class " + name[-1]
-            
             if len(self.base_name) > 0:
-                
                 class_decl += " : public " + self.base_name
-                
+
             class_decl += " {"
-            
             lst.append(class_decl)
             lst.append("public:")
-            
             if self.top_level:
-            
                 lst.extend([str(x) for x in self.elements])
             else:
-            
                 for x in self.elements:
-            
                     if not isinstance(x, QmlClass):
-                
                         lst.append(str(x))
-            
-            lst.append("};")
-            
-        if not self.top_level:
-            
-            for x in self.elements:
-        
-                if isinstance(x, QmlClass):
-            
-                    lst.append(str(x))
-        
-        lst.extend([str(x) for x in self.footer_comments])
 
+            lst.append("};")
+
+        if not self.top_level:
+            for x in self.elements:
+                if isinstance(x, QmlClass):
+                    lst.append(str(x))
+
+        lst.extend([str(x) for x in self.footer_comments])
         if self.top_level and len(name) > 1:
             lst.append("}")
 
@@ -157,22 +134,17 @@ class QmlAttribute(object):
         self.value = ""
         self.type = "var"
         self.doc = ""
-        
-    def __str__(self):
 
+    def __str__(self):
         if self.name != "id":
-            
             lst = []
-            
             if len(self.doc) > 0:
                 lst.append(self.doc)
-                
             lst.append(self.type + " " + self.name + ";")
-                   
             return "\n".join(lst)
         else:
             return ""
-    
+
 
 class QmlProperty(object):
     type_rx = re.compile(TYPE_RX)

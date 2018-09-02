@@ -58,42 +58,30 @@ def parse_class_content(reader, cls, token, doc):
     
     
 def parse_class_component(reader, cls, token, doc):
-
     obj = QmlClass(token.value, None)
-    
     parse_class_definition(reader, obj)
-    
     obj.comment = doc
     obj.top_level = False
-    
     cls.add_element(obj)
-    
     return obj
 
 
 def parse_class_attribute(reader, cls, token, doc):
-    
     obj = QmlAttribute()
-    
     obj.name = token.value
-    
+
     # Should be colon
     token = reader.consume_expecting(lexer.CHAR)
-    
     token = reader.consume()
-
     if token.type == lexer.BLOCK_START:
-      
         skip_block(reader)
     else:
-      
         obj.value = token.value
-      
+
     if doc is not None:
         obj.doc = doc
-    
+
     cls.add_element(obj)
-    
     return obj
 
 
