@@ -21,7 +21,7 @@ class QmlClass(object):
         self.footer_comments = []
         self.elements = []
         self.imports = []
-        self.topLevel = True
+        self.top_level = True
 
         if version:
             self.header_comments.append(QmlClass.VERSION_COMMENT % version)
@@ -63,10 +63,10 @@ class QmlClass(object):
 
     def __str__(self):
         name = self.name.split('.')
-        
+
         lst = []
 
-        if self.topLevel:
+        if self.top_level:
 
             for module in self.imports:
                 lst.append("using namespace %s;" % module.replace('.', '::'))
@@ -77,11 +77,11 @@ class QmlClass(object):
         
         # Either the top level component, or a (grand)child component with ID.
         # Do not show child objects without IDs.
-        showObject = True
+        show_object = True
         
-        if not self.topLevel:
+        if not self.top_level:
             
-            showObject = False
+            show_object = False
             
             for attr in self.get_attributes():
                  
@@ -92,25 +92,25 @@ class QmlClass(object):
                     
                     lst.append("%s %s;" % (name[-1], attr.value));
                      
-                    showObject = True
+                    show_object = True
                     break
         
         # For child objects with IDs, associate the object with the top-level
-        # object. This massive nesting.
-        if showObject:
+        # object. This avoids very deep nesting in the generated documentation.
+        if show_object:
         
-            classDecl = "class " + name[-1]
+            class_decl = "class " + name[-1]
             
             if len(self.base_name) > 0:
                 
-                classDecl += " : public " + self.base_name
+                class_decl += " : public " + self.base_name
                 
-            classDecl += " {"
+            class_decl += " {"
             
-            lst.append(classDecl)
+            lst.append(class_decl)
             lst.append("public:")
             
-            if self.topLevel:
+            if self.top_level:
             
                 lst.extend([str(x) for x in self.elements])
             else:
@@ -123,7 +123,7 @@ class QmlClass(object):
             
             lst.append("};")
             
-        if not self.topLevel:
+        if not self.top_level:
             
             for x in self.elements:
         
@@ -133,7 +133,7 @@ class QmlClass(object):
         
         lst.extend([str(x) for x in self.footer_comments])
 
-        if self.topLevel and len(name) > 1:
+        if self.top_level and len(name) > 1:
             lst.append("}")
 
         return "\n".join(lst)

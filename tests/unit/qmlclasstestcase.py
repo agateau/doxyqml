@@ -81,6 +81,4 @@ class QmlPropertyTestCase(TestCase):
         prop.type = "list<Item>"
         prop.is_default = True
 
-        prop.post_process_doc()
-
-        self.assertEqual(prop.doc, "/// Children\n" + QmlProperty.DEFAULT_PROPERTY_COMMENT)
+        self.assertEqual(str(prop), "/// Children\n" + QmlProperty.DEFAULT_PROPERTY_COMMENT + "\nQ_PROPERTY(list<Item> )")

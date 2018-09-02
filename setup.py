@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
-from distutils.core import setup
+from setuptools import setup
 
-from doxyqml import doxyqml
+from doxyqml import __version__, DESCRIPTION
 
 setup(name="doxyqml",
-    version=doxyqml.VERSION,
-    description=doxyqml.DESCRIPTION,
+    version=__version__,
+    description=DESCRIPTION,
     author="Aurélien Gâteau",
     author_email="mail@agateau.com",
     license="BSD",
     platforms=["any"],
     url="http://agateau.com/projects/doxyqml",
     packages=["doxyqml"],
-    scripts=["bin/doxyqml"],
+    entry_points={
+        "console_scripts": [
+            "doxyqml = doxyqml.main:main",
+        ],
+    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Plugins",

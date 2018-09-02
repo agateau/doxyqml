@@ -24,10 +24,9 @@ To tell Doxygen about Doxyqml you must make a few changes to your Doxygen file.
 
         FILTER_PATTERNS = *.qml=doxyqml
 
-    Note: On Windows you may need to use the full path of the `doxyqml.py` file
-    instead. For example if you installed Python 3.5 in `C:\Python35`, use this:
-
-        FILTER_PATTERNS = *.qml=C:\Python35\Lib\site-packages\doxyqml\doxyqml.py
+   Note: on Windows Doxyqml installs itself in the `Scripts` folder of your
+   Python installation. If this folder is not in the PATH, either add it or use
+   the full path to Doxyqml here (but that is less portable across machines)
 
 2. Add the .qml extension to `FILE_PATTERNS`:
 

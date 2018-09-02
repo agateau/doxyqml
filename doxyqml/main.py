@@ -8,7 +8,6 @@ import sys
 
 import doxyqml.qmlparser as qmlparser
 
-
 from doxyqml import __version__, DESCRIPTION
 from doxyqml.lexer import Lexer, LexerError
 from doxyqml.qmlclass import QmlClass
