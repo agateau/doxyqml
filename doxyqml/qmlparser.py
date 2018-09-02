@@ -55,8 +55,8 @@ def parse_class_content(reader, cls, token, doc):
     if doc is not None:
         obj.doc = doc
     cls.add_element(obj)
-    
-    
+
+
 def parse_class_component(reader, cls, token, doc):
     obj = QmlClass(token.value, None)
     parse_class_definition(reader, obj)
