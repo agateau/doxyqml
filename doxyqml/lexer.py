@@ -3,6 +3,7 @@ import re
 
 
 COMMENT = "comment"
+ICOMMENT = "inline_comment"
 STRING = "string"
 ELEMENT = "element"
 BLOCK_START = "block_start"
@@ -13,6 +14,14 @@ IMPORT = "import"
 PRAGMA = "pragma"
 COMPONENT = "component"
 ATTRIBUTE = "attribute"
+
+# not a doxy comment
+PLAIN_COMMENT_RX = re.compile("/[/*][^/!*]")
+
+
+def is_doxy_comment_token(token):
+    return token.type == COMMENT and not PLAIN_COMMENT_RX.match(token.value)
+
 
 class LexerError(Exception):
     def __init__(self, msg, idx):
@@ -42,6 +51,8 @@ class Lexer(object):
             ]
         
         self.tokenizers = [
+            Tokenizer(ICOMMENT, re.compile(r"/\*[!*]<.*?\*/", re.DOTALL)),
+            Tokenizer(ICOMMENT, re.compile(r"//[/!]<.*")),
             Tokenizer(COMMENT, re.compile(r"/\*.*?\*/", re.DOTALL)),
             Tokenizer(COMMENT, re.compile(r"//.*")),
             # A double quote, then either:
@@ -128,13 +139,40 @@ class Lexer(object):
         raise LexerError("No lexer matched", self.idx)
 
     def fixup_tokens(self):
-        for i, t in enumerate(self.tokens):
+        for idx, token in enumerate(self.tokens):
             # Fix tokenization of a property named "property". For example:
             #   property string property: "foo"
-            if (t.type == KEYWORD and t.value == "property" and i > 1 and
-                    self.tokens[i - 1].type == ELEMENT and
-                    self.tokens[i - 2].type == KEYWORD and self.tokens[i - 2].value.endswith("property")):
-                self.tokens[i] = Token(ELEMENT, t.value, t.idx)
+            if (token.type == KEYWORD and token.value == "property" and idx > 1 and
+                    self.tokens[idx - 1].type == ELEMENT and
+                    self.tokens[idx - 2].type == KEYWORD and self.tokens[idx - 2].value.endswith("property")):
+                self.tokens[idx] = Token(ELEMENT, token.value, token.idx)
+            if token.type == ICOMMENT and idx > 1:
+                self.move_inline_comments(idx)
+
+    def move_inline_comments(self, start_idx):
+        """
+        Move inline comments ahead of their parent KEYWORD. This way they get
+        properly handed over to the Qml* object type handlers which can do with
+        them as they wish.
+        """
+        # Iterate backwards looking for a KEYWORD. As a sanity measure we only
+        # search back up to 20 tokens or until an "invalid" token is found.
+        end_idx = max(start_idx - 20, 0)
+        for idx, token in enumerate(self.tokens[start_idx - 1:end_idx:-1]):
+            if token.type == KEYWORD:
+                ins_idx = start_idx - idx - 1
+                if ins_idx <= 0:
+                    return
+                break
+            if token.type in (COMMENT, ICOMMENT, IMPORT, PRAGMA):
+                return
+
+        # Final sanity check for a misplaced inline comment
+        previous_token = self.tokens[ins_idx - 1]
+        if previous_token.type == ICOMMENT or is_doxy_comment_token(previous_token):
+            return
+
+        self.tokens.insert(ins_idx, self.tokens.pop(start_idx))
 
     def append_token(self, type, value):
         self.tokens.append(Token(type, value, self.idx))
