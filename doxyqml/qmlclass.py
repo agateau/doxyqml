@@ -21,6 +21,7 @@ class QmlClass(object):
         self.footer_comments = []
         self.elements = []
         self.imports = []
+        self.comment = None
         self.top_level = True
 
         if version:
