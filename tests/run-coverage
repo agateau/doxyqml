@@ -8,10 +8,10 @@ set -e
 cd $(dirname $0)/..
 
 echo "# Running unit tests"
-(cd tests/unit && python3-coverage run -p --source doxyqml tests.py)
+(cd tests/unit && coverage run -p --source doxyqml tests.py)
 
 echo "# Running functional tests"
-(cd tests/functional && python3-coverage run -p --source doxyqml tests.py --import)
+(cd tests/functional && coverage run -p --source doxyqml tests.py --import)
 
 echo "# Combining"
-python3-coverage combine tests/unit tests/functional
+coverage combine tests/unit tests/functional

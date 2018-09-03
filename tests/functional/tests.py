@@ -8,9 +8,6 @@ import shutil
 import sys
 import subprocess
 
-doxyqml_path = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)
-sys.path.insert(0, doxyqml_path)
-
 from doxyqml.main import main as doxyqml_main
 
 
