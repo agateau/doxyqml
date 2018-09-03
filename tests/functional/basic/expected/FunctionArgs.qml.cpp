@@ -40,7 +40,6 @@ int square(arg);
 /// One-line comment
 void refresh();
 
-
 Q_PROPERTY(int weirdProperty)
 /* baz */
 /* foo */

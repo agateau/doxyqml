@@ -35,7 +35,6 @@ void reload(); ///< Inline comment for a keyword following a regular comment.
     */
 void update(string arg1, int arg2);
 
-
 Q_PROPERTY(int weirdProperty)
 /* baz */
 /* foo */

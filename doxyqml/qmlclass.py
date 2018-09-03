@@ -98,7 +98,11 @@ class QmlClass(object):
             lst.append(class_decl)
             lst.append("public:")
             if self.top_level:
-                lst.extend([str(x) for x in self.elements])
+                for x in self.elements:
+                    # Prevent empty components from adding a newline to the output.
+                    doc = str(x)
+                    if len(doc) > 0:
+                        lst.append(doc)
             else:
                 for x in self.elements:
                     if not isinstance(x, QmlClass):
@@ -115,7 +119,10 @@ class QmlClass(object):
         if self.top_level and len(name) > 1:
             lst.append("}")
 
-        return "\n".join(lst)
+        if len(lst) > 0:
+            return "\n".join(lst)
+        else:
+            return ""
 
 
 class QmlArgument(object):
