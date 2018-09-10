@@ -11,7 +11,8 @@ before_install:
     - sudo apt-get install -qq doxygen
 
 install:
-    - pip install coverage coveralls
+    - pip install -r dev-requirements.txt
+    - pip install coveralls
 
 script:
     - ./setup.py sdist --formats=bztar
