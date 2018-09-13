@@ -29,10 +29,10 @@ def parse_class_definition(reader, cls):
             parse_class_content(reader, cls, token, last_comment_token)
             last_comment_token = None
         elif token.type == lexer.COMPONENT:
-            done = parse_class_component(reader, cls, token, last_comment_token)
+            parse_class_component(reader, cls, token, last_comment_token)
             last_comment_token = None
         elif token.type == lexer.ATTRIBUTE:
-            done = parse_class_attribute(reader, cls, token, last_comment_token)
+            parse_class_attribute(reader, cls, token, last_comment_token)
             last_comment_token = None
         elif token.type == lexer.BLOCK_START:
             skip_block(reader)
@@ -67,7 +67,6 @@ def parse_class_component(reader, cls, token, doc_token):
 
     obj.top_level = False
     cls.add_element(obj)
-    return obj
 
 
 def parse_class_attribute(reader, cls, token, doc_token):
@@ -86,7 +85,6 @@ def parse_class_attribute(reader, cls, token, doc_token):
         obj.doc = doc_token.value
 
     cls.add_element(obj)
-    return obj
 
 
 def parse_property(reader, property_token_value):
