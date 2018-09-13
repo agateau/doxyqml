@@ -21,7 +21,7 @@ var componentAttribute;
 var component.attribute;
 /**
          * A function in a component.
-         * @param str The string to append 'a' to. 
+         * @param str The string to append 'a' to.
          * @return The new string.
          */
 string itemFunction(string str);
@@ -44,7 +44,7 @@ var componentAttribute;
 var component.attribute;
 /**
              * A function in a component.
-             * @param str The string to append 'a' to. 
+             * @param str The string to append 'a' to.
              * @return The new string.
              */
 string showFunction(string str);
@@ -63,7 +63,7 @@ var componentAttribute;
 var component.attribute;
 /**
              * A function in a component.
-             * @param str The string to append 'a' to. 
+             * @param str The string to append 'a' to.
              * @return The new string.
              */
 string showFunction(string str);

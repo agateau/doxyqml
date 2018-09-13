@@ -24,7 +24,7 @@ Item {
 
         /**
          * A function in a component.
-         * @param type:string str The string to append 'a' to. 
+         * @param type:string str The string to append 'a' to.
          * @return type:string The new string.
          */
         function itemFunction(str) {
@@ -51,7 +51,7 @@ Item {
 
             /**
              * A function in a component.
-             * @param type:string str The string to append 'a' to. 
+             * @param type:string str The string to append 'a' to.
              * @return type:string The new string.
              */
             function showFunction(str) {
@@ -69,7 +69,7 @@ Item {
 
             /**
              * A function in a component.
-             * @param type:string str The string to append 'a' to. 
+             * @param type:string str The string to append 'a' to.
              * @return type:string The new string.
              */
             function hideFunction(str) {
@@ -101,7 +101,7 @@ Item {
 
             /**
              * A function in a component.
-             * @param type:string str The string to append 'a' to. 
+             * @param type:string str The string to append 'a' to.
              * @return type:string The new string.
              */
             function showFunction(str) {
