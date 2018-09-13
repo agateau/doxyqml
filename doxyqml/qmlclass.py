@@ -82,8 +82,8 @@ class QmlClass(object):
             for attr in self.get_attributes():
                 if attr.name == "id":
                     if self.comment is not None:
-                        lst.append(self.comment);
-                    lst.append("%s %s;" % (name[-1], attr.value));
+                        lst.append(self.comment)
+                    lst.append("%s %s;" % (name[-1], attr.value))
                     show_object = True
                     break
 
