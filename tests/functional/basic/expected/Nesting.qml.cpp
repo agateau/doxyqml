@@ -14,7 +14,6 @@ public:
 Item childItem;
 class Item {
 public:
-
 /** An attribute. */
 var componentAttribute;
 /** Another attribute. */
@@ -32,12 +31,10 @@ string itemFunction(string str);
 Item childItem2;
 class Item {
 public:
-
 };
 ShowChildComponent customComponentChildItem;
 class ShowChildComponent {
 public:
-
 /** An attribute. */
 var componentAttribute;
 /** Another attribute. */
@@ -49,14 +46,12 @@ var component.attribute;
              */
 string showFunction(string str);
 };
-
 /**
          * A grandchild with an ID.
          */
 ShowChildComponent showCustomComponentChildItem;
 class ShowChildComponent {
 public:
-
 /** An attribute. */
 var componentAttribute;
 /** Another attribute. */
@@ -74,7 +69,6 @@ string showFunction(string str);
 SplitView aSplitView;
 class SplitView {
 public:
-
 var Layout.fillHeight;
 var Layout.fillWidth;
 };
@@ -84,6 +78,5 @@ var Layout.fillWidth;
 Rectangle aRectangle;
 class Rectangle {
 public:
-
 };
 };

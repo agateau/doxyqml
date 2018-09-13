@@ -10,23 +10,16 @@ def post_process_type(rx, text, type):
         text = text[:match.start("prefix")] + text[match.end("type"):]
     return text, type
 
-class QmlClass(object):
-    SINGLETON_COMMENT = "/** @remark This component is a singleton */"
-    VERSION_COMMENT = "/** @since %s */"
 
-    def __init__(self, name, version = None):
+class QmlBaseComponent(object):
+    def __init__(self, name):
         self.name = name
         self.base_name = ""
-        self.header_comments = []
-        self.footer_comments = []
         self.elements = []
-        self.imports = []
-        self.comment = None
-        self.top_level = True
 
-        if version:
-            self.header_comments.append(QmlClass.VERSION_COMMENT % version)
-
+        lst = name.split(".")
+        self.class_name = lst[-1]
+        self.namespaces = lst[:-1]
 
     def get_attributes(self):
         return [x for x in self.elements if isinstance(x, QmlAttribute)]
@@ -43,11 +36,49 @@ class QmlClass(object):
     def add_element(self, element):
         self.elements.append(element)
 
-    def add_header_comment(self, obj):
-        self.header_comments.append(obj)
+    def __str__(self):
+        lst = []
+        self._export_content(lst)
+        return "\n".join(lst)
 
-    def add_footer_comment(self, obj):
-        self.footer_comments.append(obj)
+    def _export_elements(self, lst, filter=None):
+        for element in self.elements:
+            if filter and not filter(element):
+                continue
+            doc = str(element)
+            if doc:
+                lst.append(doc)
+
+    def _start_class(self, lst):
+        class_decl = "class " + self.class_name
+        if self.base_name:
+            class_decl += " : public " + self.base_name
+
+        class_decl += " {"
+        lst.append(class_decl)
+        lst.append("public:")
+
+    def _end_class(self, lst):
+        lst.append("};")
+
+
+class QmlClass(QmlBaseComponent):
+    SINGLETON_COMMENT = "/** @remark This component is a singleton */"
+    VERSION_COMMENT = "/** @since %s */"
+
+    def __init__(self, name, version=None):
+        QmlBaseComponent.__init__(self, name)
+        self.header_comments = []
+        self.footer_comments = []
+        self.imports = []
+        if version:
+            self.header_comments.append(QmlClass.VERSION_COMMENT % version)
+
+    def add_pragma(self, decl):
+        args = decl.split(' ', 2)[1].strip()
+
+        if args.lower() == "singleton":
+            self.header_comments.append(QmlClass.SINGLETON_COMMENT)
 
     def add_import(self, decl):
         module = decl.split()[1]
@@ -56,73 +87,64 @@ class QmlClass(object):
             return
         self.imports.append(module)
 
-    def add_pragma(self, decl):
-        args = decl.split(' ', 2)[1].strip()
+    def add_header_comment(self, obj):
+        self.header_comments.append(obj)
 
-        if args.lower() == "singleton":
-            self.header_comments.append(QmlClass.SINGLETON_COMMENT)
+    def add_footer_comment(self, obj):
+        self.footer_comments.append(obj)
 
-    def __str__(self):
-        name = self.name.split('.')
-
-        lst = []
-        if self.top_level:
-            for module in self.imports:
-                lst.append("using namespace %s;" % module.replace('.', '::'))
-            if len(name) > 1:
-                lst.append("namespace %s {" % '::'.join(name[:-1]))
+    def _export_header(self, lst):
+        for module in self.imports:
+            lst.append("using namespace %s;" % module.replace('.', '::'))
+        if self.namespaces:
+            lst.append("namespace %s {" % '::'.join(self.namespaces))
 
         lst.extend([str(x) for x in self.header_comments])
 
-        # Either the top level component, or a (grand)child component with ID.
-        # Do not show child objects without IDs.
-        show_object = True
-        if not self.top_level:
-            show_object = False
-            for attr in self.get_attributes():
-                if attr.name == "id":
-                    if self.comment is not None:
-                        lst.append(self.comment)
-                    lst.append("%s %s;" % (name[-1], attr.value))
-                    show_object = True
-                    break
-
-        # For child objects with IDs, associate the object with the top-level
-        # object. This avoids very deep nesting in the generated documentation.
-        if show_object:
-            class_decl = "class " + name[-1]
-            if len(self.base_name) > 0:
-                class_decl += " : public " + self.base_name
-
-            class_decl += " {"
-            lst.append(class_decl)
-            lst.append("public:")
-            if self.top_level:
-                for x in self.elements:
-                    # Prevent empty components from adding a newline to the output.
-                    doc = str(x)
-                    if len(doc) > 0:
-                        lst.append(doc)
-            else:
-                for x in self.elements:
-                    if not isinstance(x, QmlClass):
-                        lst.append(str(x))
-
-            lst.append("};")
-
-        if not self.top_level:
-            for x in self.elements:
-                if isinstance(x, QmlClass):
-                    lst.append(str(x))
-
+    def _export_footer(self, lst):
         lst.extend([str(x) for x in self.footer_comments])
-        if self.top_level and len(name) > 1:
+
+        if self.namespaces:
             lst.append("}")
 
-        if len(lst) > 0:
-            return "\n".join(lst)
-        else:
-            return ""
+    def _export_content(self, lst):
+        self._export_header(lst)
+        self._start_class(lst)
+        self._export_elements(lst)
+        self._end_class(lst)
+        self._export_footer(lst)
+
+
+class QmlComponent(QmlBaseComponent):
+    """A component inside a QmlClass"""
+    def __init__(self, name):
+        QmlBaseComponent.__init__(self, name)
+        self.comment = None
+
+    def _export_content(self, lst):
+        component_id = self._get_component_id()
+        if component_id:
+            if self.comment:
+                lst.append(self.comment)
+            lst.append("%s %s;" % (self.class_name, component_id))
+
+            # Export component attributes
+            self._start_class(lst)
+            self._export_elements(lst, filter=lambda x:
+                                  not isinstance(x, QmlComponent))
+            self._end_class(lst)
+
+        # Export child components with the top-level component. This avoids
+        # very deep nesting in the generated documentation.
+        self._export_elements(lst, filter=lambda x:
+                              isinstance(x, QmlComponent))
+
+    def _get_component_id(self):
+        # Returns the id of the component, if it has one
+        for attr in self.get_attributes():
+            if attr.name == "id":
+                return attr.value
+        return None
 
 
 class QmlArgument(object):

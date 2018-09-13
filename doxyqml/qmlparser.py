@@ -1,6 +1,6 @@
 import doxyqml.lexer as lexer
 
-from doxyqml.qmlclass import QmlClass, QmlArgument, QmlProperty, QmlFunction, QmlSignal, QmlAttribute
+from doxyqml.qmlclass import QmlClass, QmlComponent, QmlArgument, QmlProperty, QmlFunction, QmlSignal, QmlAttribute
 
 
 class QmlParserError(Exception):
@@ -59,13 +59,12 @@ def parse_class_content(reader, cls, token, doc_token):
 
 
 def parse_class_component(reader, cls, token, doc_token):
-    obj = QmlClass(token.value, None)
+    obj = QmlComponent(token.value)
     parse_class_definition(reader, obj)
 
     if doc_token is not None:
         obj.comment = doc_token.value
 
-    obj.top_level = False
     cls.add_element(obj)
 
 
