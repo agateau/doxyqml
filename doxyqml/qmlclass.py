@@ -20,6 +20,8 @@ class QmlBaseComponent(object):
         lst = name.split(".")
         self.class_name = lst[-1]
         self.namespaces = lst[:-1]
+        
+        self.has_private_members = False
 
     def get_attributes(self):
         return [x for x in self.elements if isinstance(x, QmlAttribute)]
@@ -34,6 +36,11 @@ class QmlBaseComponent(object):
         return [x for x in self.elements if isinstance(x, QmlSignal)]
 
     def add_element(self, element):
+        if (isinstance(element, QmlAttribute) or
+        (isinstance(element, QmlComponent) and
+         element.get_component_id() is not None)):
+            self.has_private_members = True
+
         self.elements.append(element)
 
     def __str__(self):
@@ -109,8 +116,23 @@ class QmlClass(QmlBaseComponent):
 
     def _export_content(self, lst):
         self._export_header(lst)
+        
+        # Public members.
         self._start_class(lst)
-        self._export_elements(lst)
+        
+        # Doxygen always adds Q_PROPERTY and Q_SIGNALS items as public
+        # members.
+        self._export_elements(lst, filter=lambda x:
+                              not isinstance(x, QmlAttribute) and
+                              not isinstance(x, QmlComponent))
+
+        # Private members.
+        if self.has_private_members:
+            lst.append("private:")
+            self._export_elements(lst, filter=lambda x:
+                                isinstance(x, QmlAttribute) or
+                                isinstance(x, QmlComponent))
+        
         self._end_class(lst)
         self._export_footer(lst)
 
@@ -122,10 +144,11 @@ class QmlComponent(QmlBaseComponent):
         self.comment = None
 
     def _export_content(self, lst):
-        component_id = self._get_component_id()
+        component_id = self.get_component_id()
         if component_id:
             if self.comment:
                 lst.append(self.comment)
+            
             lst.append("%s %s;" % (self.class_name, component_id))
 
             # Export component attributes
@@ -139,7 +162,7 @@ class QmlComponent(QmlBaseComponent):
         self._export_elements(lst, filter=lambda x:
                               isinstance(x, QmlComponent))
 
-    def _get_component_id(self):
+    def get_component_id(self):
         # Returns the id of the component, if it has one
         for attr in self.get_attributes():
             if attr.name == "id":
