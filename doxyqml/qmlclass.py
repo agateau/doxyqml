@@ -151,12 +151,6 @@ class QmlComponent(QmlBaseComponent):
             
             lst.append("%s %s;" % (self.class_name, component_id))
 
-            # Export component attributes
-            self._start_class(lst)
-            self._export_elements(lst, filter=lambda x:
-                                  not isinstance(x, QmlComponent))
-            self._end_class(lst)
-
         # Export child components with the top-level component. This avoids
         # very deep nesting in the generated documentation.
         self._export_elements(lst, filter=lambda x:
