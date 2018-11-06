@@ -41,8 +41,8 @@ class QmlBaseComponent(object):
         self._export_content(lst)
         return "\n".join(lst)
 
-    def _export_elements(self, lst, filter=None):
-        for element in self.elements:
+    def _export_elements(self, inputList, lst, filter=None):
+        for element in inputList:
             if filter and not filter(element):
                 continue
             doc = str(element)
@@ -113,15 +113,23 @@ class QmlClass(QmlBaseComponent):
         # Public members.
         self._start_class(lst)
         
-        # Explicitly filter strings since they do not have is_public_element()
-        self._export_elements(lst, filter=lambda x: isinstance(x, str) or x.is_public_element())
-
-        # Check for existence of private members. Prevent empty strings from registering as private members.
-        private_members = [x for x in self.elements if not isinstance(x, str) and not x.is_public_element() and not str(x) == ""]
+        public_members = []
+        private_members = []
         
+        # Sort elements before exporting to reduce the number of times element list must
+        # be iterated through.
+        for element in self.elements:
+          if str(element) == "" or isinstance(element, str) or element.is_public_element():
+            # Register empty strings as public to prevent exporting unneeded "private" keyword.
+            public_members.append(element)
+          else:
+            private_members.append(element)
+        
+        self._export_elements(public_members, lst)
+
         if len(private_members) > 0:
             lst.append("private:")
-            self._export_elements(lst, lambda x: not isinstance(x, str) and not x.is_public_element() and not str(x) == "")
+            self._export_elements(private_members, lst)
         
         self._end_class(lst)
         self._export_footer(lst)
@@ -146,7 +154,7 @@ class QmlComponent(QmlBaseComponent):
 
         # Export child components with the top-level component. This avoids
         # very deep nesting in the generated documentation.
-        self._export_elements(lst, filter=lambda x:
+        self._export_elements(self.elements, lst, filter=lambda x:
                               isinstance(x, QmlComponent))
 
     def get_component_id(self):
