@@ -21,8 +21,6 @@ class QmlBaseComponent(object):
         self.class_name = lst[-1]
         self.namespaces = lst[:-1]
         
-        self.has_private_members = False
-
     def get_attributes(self):
         return [x for x in self.elements if isinstance(x, QmlAttribute)]
 
@@ -36,11 +34,6 @@ class QmlBaseComponent(object):
         return [x for x in self.elements if isinstance(x, QmlSignal)]
 
     def add_element(self, element):
-        if (isinstance(element, QmlAttribute) or
-        (isinstance(element, QmlComponent) and
-         element.get_component_id() is not None)):
-            self.has_private_members = True
-
         self.elements.append(element)
 
     def __str__(self):
@@ -120,21 +113,21 @@ class QmlClass(QmlBaseComponent):
         # Public members.
         self._start_class(lst)
         
-        # Doxygen always adds Q_PROPERTY and Q_SIGNALS items as public
-        # members.
-        self._export_elements(lst, filter=lambda x:
-                              not isinstance(x, QmlAttribute) and
-                              not isinstance(x, QmlComponent))
+        # Explicitly filter strings since they do not have is_public_element()
+        self._export_elements(lst, filter=lambda x: isinstance(x, str) or x.is_public_element())
 
-        # Private members.
-        if self.has_private_members:
+        # Check for existence of private members. Prevent empty strings from registering as private members.
+        private_members = [x for x in self.elements if not isinstance(x, str) and not x.is_public_element() and not str(x) == ""]
+        
+        if len(private_members) > 0:
             lst.append("private:")
-            self._export_elements(lst, filter=lambda x:
-                                isinstance(x, QmlAttribute) or
-                                isinstance(x, QmlComponent))
+            self._export_elements(lst, lambda x: not isinstance(x, str) and not x.is_public_element() and not str(x) == "")
         
         self._end_class(lst)
         self._export_footer(lst)
+        
+    def is_public_element(self):
+      return True
 
 
 class QmlComponent(QmlBaseComponent):
@@ -162,6 +155,9 @@ class QmlComponent(QmlBaseComponent):
             if attr.name == "id":
                 return attr.value
         return None
+      
+    def is_public_element(self):
+      return False
 
 
 class QmlArgument(object):
@@ -174,6 +170,9 @@ class QmlArgument(object):
             return self.name
         else:
             return self.type + " " + self.name
+          
+    def is_public_element(self):
+      return True
 
 
 class QmlAttribute(object):
@@ -192,6 +191,9 @@ class QmlAttribute(object):
             return "\n".join(lst)
         else:
             return ""
+          
+    def is_public_element(self):
+      return False
 
 
 class QmlProperty(object):
@@ -224,6 +226,10 @@ class QmlProperty(object):
 
     def post_process_doc(self):
         self.doc, self.type = post_process_type(self.type_rx, self.doc, self.type)
+        
+    def is_public_element(self):
+      # Doxygen always adds Q_PROPERTY items as public members.
+      return True
 
 
 class QmlFunction(object):
@@ -263,6 +269,9 @@ class QmlFunction(object):
         self.doc = self.doc_arg_rx.sub(repl, self.doc)
         self.doc, self.type = post_process_type(self.return_rx, self.doc, self.type)
 
+    def is_public_element(self):
+      return True
+
 
 class QmlSignal(object):
     def __init__(self):
@@ -285,3 +294,7 @@ class QmlSignal(object):
         # Doxygen (1.8.4) does not support it
         lst.append("public:")
         return "".join(lst)
+
+    def is_public_element(self):
+      # Doxygen always adds Q_SIGNALS items as public members.
+      return True
