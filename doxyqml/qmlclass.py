@@ -20,7 +20,7 @@ class QmlBaseComponent(object):
         lst = name.split(".")
         self.class_name = lst[-1]
         self.namespaces = lst[:-1]
-        
+
     def get_attributes(self):
         return [x for x in self.elements if isinstance(x, QmlAttribute)]
 
@@ -41,8 +41,8 @@ class QmlBaseComponent(object):
         self._export_content(lst)
         return "\n".join(lst)
 
-    def _export_elements(self, inputList, lst, filter=None):
-        for element in inputList:
+    def _export_elements(self, input_list, lst, filter=None):
+        for element in input_list:
             if filter and not filter(element):
                 continue
             doc = str(element)
@@ -109,31 +109,31 @@ class QmlClass(QmlBaseComponent):
 
     def _export_content(self, lst):
         self._export_header(lst)
-        
+
         # Public members.
         self._start_class(lst)
-        
+
         public_members = []
         private_members = []
-        
+
         # Sort elements before exporting to reduce the number of times element list must
         # be iterated through.
         for element in self.elements:
-          if str(element) == "" or isinstance(element, str) or element.is_public_element():
-            # Register empty strings as public to prevent exporting unneeded "private" keyword.
-            public_members.append(element)
-          else:
-            private_members.append(element)
-        
+            if str(element) == "" or isinstance(element, str) or element.is_public_element():
+                # Register empty strings as public to prevent exporting unneeded "private" keyword.
+                public_members.append(element)
+            else:
+                private_members.append(element)
+
         self._export_elements(public_members, lst)
 
         if len(private_members) > 0:
             lst.append("private:")
             self._export_elements(private_members, lst)
-        
+
         self._end_class(lst)
         self._export_footer(lst)
-        
+
     def is_public_element(self):
       return True
 
@@ -149,7 +149,7 @@ class QmlComponent(QmlBaseComponent):
         if component_id:
             if self.comment:
                 lst.append(self.comment)
-            
+
             lst.append("%s %s;" % (self.class_name, component_id))
 
         # Export child components with the top-level component. This avoids
@@ -163,7 +163,7 @@ class QmlComponent(QmlBaseComponent):
             if attr.name == "id":
                 return attr.value
         return None
-      
+
     def is_public_element(self):
       return False
 
@@ -178,7 +178,7 @@ class QmlArgument(object):
             return self.name
         else:
             return self.type + " " + self.name
-          
+
     def is_public_element(self):
       return True
 
@@ -199,7 +199,7 @@ class QmlAttribute(object):
             return "\n".join(lst)
         else:
             return ""
-          
+
     def is_public_element(self):
       return False
 
@@ -234,7 +234,7 @@ class QmlProperty(object):
 
     def post_process_doc(self):
         self.doc, self.type = post_process_type(self.type_rx, self.doc, self.type)
-        
+
     def is_public_element(self):
       # Doxygen always adds Q_PROPERTY items as public members.
       return True
