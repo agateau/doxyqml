@@ -10,21 +10,19 @@ def post_process_type(rx, text, type):
         text = text[:match.start("prefix")] + text[match.end("type"):]
     return text, type
 
-class QmlClass(object):
-    SINGLETON_COMMENT = "/** @remark This component is a singleton */"
-    VERSION_COMMENT = "/** @since %s */"
 
-    def __init__(self, name, version = None):
+class QmlBaseComponent(object):
+    def __init__(self, name):
         self.name = name
         self.base_name = ""
-        self.header_comments = []
-        self.footer_comments = []
         self.elements = []
-        self.imports = []
 
-        if version:
-            self.header_comments.append(QmlClass.VERSION_COMMENT % version)
+        lst = name.split(".")
+        self.class_name = lst[-1]
+        self.namespaces = lst[:-1]
 
+    def get_attributes(self):
+        return [x for x in self.elements if isinstance(x, QmlAttribute)]
 
     def get_properties(self):
         return [x for x in self.elements if isinstance(x, QmlProperty)]
@@ -38,11 +36,49 @@ class QmlClass(object):
     def add_element(self, element):
         self.elements.append(element)
 
-    def add_header_comment(self, obj):
-        self.header_comments.append(obj)
+    def __str__(self):
+        lst = []
+        self._export_content(lst)
+        return "\n".join(lst)
 
-    def add_footer_comment(self, obj):
-        self.footer_comments.append(obj)
+    def _export_elements(self, input_list, lst, filter=None):
+        for element in input_list:
+            if filter and not filter(element):
+                continue
+            doc = str(element)
+            if doc:
+                lst.append(doc)
+
+    def _start_class(self, lst):
+        class_decl = "class " + self.class_name
+        if self.base_name:
+            class_decl += " : public " + self.base_name
+
+        class_decl += " {"
+        lst.append(class_decl)
+        lst.append("public:")
+
+    def _end_class(self, lst):
+        lst.append("};")
+
+
+class QmlClass(QmlBaseComponent):
+    SINGLETON_COMMENT = "/** @remark This component is a singleton */"
+    VERSION_COMMENT = "/** @since %s */"
+
+    def __init__(self, name, version=None):
+        QmlBaseComponent.__init__(self, name)
+        self.header_comments = []
+        self.footer_comments = []
+        self.imports = []
+        if version:
+            self.header_comments.append(QmlClass.VERSION_COMMENT % version)
+
+    def add_pragma(self, decl):
+        args = decl.split(' ', 2)[1].strip()
+
+        if args.lower() == "singleton":
+            self.header_comments.append(QmlClass.SINGLETON_COMMENT)
 
     def add_import(self, decl):
         module = decl.split()[1]
@@ -51,33 +87,85 @@ class QmlClass(object):
             return
         self.imports.append(module)
 
-    def add_pragma(self, decl):
-        args = decl.split(' ', 2)[1].strip()
+    def add_header_comment(self, obj):
+        self.header_comments.append(obj)
 
-        if args.lower() == "singleton":
-            self.header_comments.append(QmlClass.SINGLETON_COMMENT)
+    def add_footer_comment(self, obj):
+        self.footer_comments.append(obj)
 
-    def __str__(self):
-        name = self.name.split('.')
-
-        lst = []
-
+    def _export_header(self, lst):
         for module in self.imports:
             lst.append("using namespace %s;" % module.replace('.', '::'))
-        if len(name) > 1:
-            lst.append("namespace %s {" % '::'.join(name[:-1]))
+        if self.namespaces:
+            lst.append("namespace %s {" % '::'.join(self.namespaces))
 
         lst.extend([str(x) for x in self.header_comments])
-        lst.append("class %s : public %s {" % (name[-1], self.base_name))
-        lst.append("public:")
-        lst.extend([str(x) for x in self.elements])
-        lst.append("};")
+
+    def _export_footer(self, lst):
         lst.extend([str(x) for x in self.footer_comments])
 
-        if len(name) > 1:
+        if self.namespaces:
             lst.append("}")
 
-        return "\n".join(lst)
+    def _export_content(self, lst):
+        self._export_header(lst)
+
+        # Public members.
+        self._start_class(lst)
+
+        public_members = []
+        private_members = []
+
+        # Sort elements before exporting to reduce the number of times element list must
+        # be iterated through.
+        for element in self.elements:
+            if str(element) == "" or isinstance(element, str) or element.is_public_element():
+                # Register empty strings as public to prevent exporting unneeded "private" keyword.
+                public_members.append(element)
+            else:
+                private_members.append(element)
+
+        self._export_elements(public_members, lst)
+
+        if len(private_members) > 0:
+            lst.append("private:")
+            self._export_elements(private_members, lst)
+
+        self._end_class(lst)
+        self._export_footer(lst)
+
+    def is_public_element(self):
+      return True
+
+
+class QmlComponent(QmlBaseComponent):
+    """A component inside a QmlClass"""
+    def __init__(self, name):
+        QmlBaseComponent.__init__(self, name)
+        self.comment = None
+
+    def _export_content(self, lst):
+        component_id = self.get_component_id()
+        if component_id:
+            if self.comment:
+                lst.append(self.comment)
+
+            lst.append("%s %s;" % (self.class_name, component_id))
+
+        # Export child components with the top-level component. This avoids
+        # very deep nesting in the generated documentation.
+        self._export_elements(self.elements, lst, filter=lambda x:
+                              isinstance(x, QmlComponent))
+
+    def get_component_id(self):
+        # Returns the id of the component, if it has one
+        for attr in self.get_attributes():
+            if attr.name == "id":
+                return attr.value
+        return None
+
+    def is_public_element(self):
+      return False
 
 
 class QmlArgument(object):
@@ -90,6 +178,30 @@ class QmlArgument(object):
             return self.name
         else:
             return self.type + " " + self.name
+
+    def is_public_element(self):
+      return True
+
+
+class QmlAttribute(object):
+    def __init__(self):
+        self.name = ""
+        self.value = ""
+        self.type = "var"
+        self.doc = ""
+
+    def __str__(self):
+        if self.name != "id":
+            lst = []
+            if len(self.doc) > 0:
+                lst.append(self.doc)
+            lst.append(self.type + " " + self.name + ";")
+            return "\n".join(lst)
+        else:
+            return ""
+
+    def is_public_element(self):
+      return False
 
 
 class QmlProperty(object):
@@ -122,6 +234,10 @@ class QmlProperty(object):
 
     def post_process_doc(self):
         self.doc, self.type = post_process_type(self.type_rx, self.doc, self.type)
+
+    def is_public_element(self):
+      # Doxygen always adds Q_PROPERTY items as public members.
+      return True
 
 
 class QmlFunction(object):
@@ -161,6 +277,9 @@ class QmlFunction(object):
         self.doc = self.doc_arg_rx.sub(repl, self.doc)
         self.doc, self.type = post_process_type(self.return_rx, self.doc, self.type)
 
+    def is_public_element(self):
+      return True
+
 
 class QmlSignal(object):
     def __init__(self):
@@ -183,3 +302,7 @@ class QmlSignal(object):
         # Doxygen (1.8.4) does not support it
         lst.append("public:")
         return "".join(lst)
+
+    def is_public_element(self):
+      # Doxygen always adds Q_SIGNALS items as public members.
+      return True

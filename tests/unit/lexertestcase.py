@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from doxyqml.lexer import Lexer, Token, IMPORT, PRAGMA, STRING, COMMENT, KEYWORD, ELEMENT, \
-        BLOCK_START
+        BLOCK_START, COMPONENT
 
 
 class LexerTestCase(TestCase):
@@ -46,7 +46,7 @@ class LexerTestCase(TestCase):
         src = "Item { property var property }"
         lexer = Lexer(src)
         lexer.tokenize()
-        self.assertEqual(lexer.tokens[0], Token(ELEMENT, 'Item', 0))
+        self.assertEqual(lexer.tokens[0], Token(COMPONENT, 'Item', 0))
         self.assertEqual(lexer.tokens[1], Token(BLOCK_START, '{', 5))
         self.assertEqual(lexer.tokens[2], Token(KEYWORD, 'property', 7))
         self.assertEqual(lexer.tokens[3], Token(ELEMENT, 'var', 16))
