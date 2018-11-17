@@ -1,6 +1,6 @@
 import doxyqml.lexer as lexer
 
-from doxyqml.qmlclass import QmlClass, QmlComponent, QmlArgument, QmlProperty, QmlFunction, QmlSignal, QmlAttribute
+from doxyqml.qmlclass import QmlComponent, QmlArgument, QmlProperty, QmlFunction, QmlSignal, QmlAttribute
 
 
 class QmlParserError(Exception):
@@ -177,6 +177,7 @@ def parse_header(reader, cls):
         else:
             raise QmlParserUnexpectedTokenError(token)
 
+
 def parse_footer(reader, cls):
     while not reader.at_end():
         token = reader.consume()
@@ -185,8 +186,10 @@ def parse_footer(reader, cls):
         else:
             raise QmlParserUnexpectedTokenError(token)
 
+
 def is_comment_token(token):
     return token.type in (lexer.COMMENT, lexer.ICOMMENT)
+
 
 class TokenReader(object):
     def __init__(self, tokens):

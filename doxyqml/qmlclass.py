@@ -1,7 +1,8 @@
 import logging
 import re
 
-TYPE_RX = "(?P<prefix>\s+type:)(?P<type>[\w.<>|]+)"
+TYPE_RX = r"(?P<prefix>\s+type:)(?P<type>[\w.<>|]+)"
+
 
 def post_process_type(rx, text, type):
     match = rx.search(text)
@@ -135,7 +136,7 @@ class QmlClass(QmlBaseComponent):
         self._export_footer(lst)
 
     def is_public_element(self):
-      return True
+        return True
 
 
 class QmlComponent(QmlBaseComponent):
@@ -165,7 +166,7 @@ class QmlComponent(QmlBaseComponent):
         return None
 
     def is_public_element(self):
-      return False
+        return False
 
 
 class QmlArgument(object):
@@ -180,7 +181,7 @@ class QmlArgument(object):
             return self.type + " " + self.name
 
     def is_public_element(self):
-      return True
+        return True
 
 
 class QmlAttribute(object):
@@ -201,7 +202,7 @@ class QmlAttribute(object):
             return ""
 
     def is_public_element(self):
-      return False
+        return False
 
 
 class QmlProperty(object):
@@ -236,13 +237,14 @@ class QmlProperty(object):
         self.doc, self.type = post_process_type(self.type_rx, self.doc, self.type)
 
     def is_public_element(self):
-      # Doxygen always adds Q_PROPERTY items as public members.
-      return True
+        # Doxygen always adds Q_PROPERTY items as public members.
+        return True
 
 
 class QmlFunction(object):
-    doc_arg_rx = re.compile(r"[@\\]param" + TYPE_RX + "\s+(?P<name>\w+)")
+    doc_arg_rx = re.compile(r"[@\\]param" + TYPE_RX + r"\s+(?P<name>\w+)")
     return_rx = re.compile(r"[@\\]returns?" + TYPE_RX)
+
     def __init__(self):
         self.type = "void"
         self.name = ""
@@ -278,7 +280,7 @@ class QmlFunction(object):
         self.doc, self.type = post_process_type(self.return_rx, self.doc, self.type)
 
     def is_public_element(self):
-      return True
+        return True
 
 
 class QmlSignal(object):
@@ -304,5 +306,5 @@ class QmlSignal(object):
         return "".join(lst)
 
     def is_public_element(self):
-      # Doxygen always adds Q_SIGNALS items as public members.
-      return True
+        # Doxygen always adds Q_SIGNALS items as public members.
+        return True

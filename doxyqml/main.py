@@ -58,6 +58,7 @@ def parse_args(argv):
 
     return parser.parse_args(argv)
 
+
 def find_qmldir_file(qml_file):
     dir = os.path.dirname(qml_file)
 
@@ -113,6 +114,7 @@ def find_classname(qml_file, namespace=None):
         classname = '.'.join(namespace) + '.' + classname
 
     return classname, classversion
+
 
 def main(argv=None, out=None):
     if argv is None:
