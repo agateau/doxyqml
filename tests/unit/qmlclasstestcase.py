@@ -3,6 +3,7 @@ from unittest import TestCase
 
 from doxyqml.qmlclass import QmlFunction, QmlArgument, QmlProperty
 
+
 class QmlFunctionTestCase(TestCase):
     def test_post_process_doc_at(self):
         self._test_post_process_doc("""
@@ -81,4 +82,5 @@ class QmlPropertyTestCase(TestCase):
         prop.type = "list<Item>"
         prop.is_default = True
 
-        self.assertEqual(str(prop), "/// Children\n" + QmlProperty.DEFAULT_PROPERTY_COMMENT + "\nQ_PROPERTY(list<Item> )")
+        self.assertEqual(str(prop),
+                         "/// Children\n" + QmlProperty.DEFAULT_PROPERTY_COMMENT + "\nQ_PROPERTY(list<Item> )")

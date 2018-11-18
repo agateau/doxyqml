@@ -1,7 +1,6 @@
 language: python
 
 python:
-    - "3.3"
     - "3.4"
     - "3.5"
     - "3.6"
@@ -11,9 +10,10 @@ before_install:
     - sudo apt-get install -qq doxygen
 
 install:
-    - pip install coverage coveralls
+    - pip install coverage coveralls flake8
 
 script:
+    - flake8
     - ./setup.py sdist --formats=bztar
     - tar xf dist/doxyqml-*.tar.bz2
     - cd doxyqml-*

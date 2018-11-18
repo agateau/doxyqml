@@ -19,7 +19,7 @@ class QmlParserTestCase(TestCase):
         self.assertEqual(len(functions), 2)
         self.assertEqual(functions[0].name, "foo")
         self.assertEqual(functions[1].name, "bar")
- 
+
     def test_default_property(self):
         src = """Item {
             /// v1 doc
@@ -147,7 +147,7 @@ class QmlParserTestCase(TestCase):
         qmlparser.parse(lexer.tokens, qmlclass)
 
         functions = qmlclass.get_functions()
-        self.assertEqual(len(functions), 1)        
+        self.assertEqual(len(functions), 1)
         self.assertEqual(functions[0].name, "foo")
         self.assertEqual(functions[0].type, "void")
 

@@ -45,8 +45,8 @@ class Lexer(object):
     def __init__(self, text):
         # Tokens that start at the first non-whitespace character in a line
         self.tokenizers_newline = [
-            Tokenizer(COMPONENT, re.compile("([-\w\.]+)\s*{")),  # a component
-            Tokenizer(ATTRIBUTE, re.compile("([-\w\.]+)\s*:")),  # an attribute
+            Tokenizer(COMPONENT, re.compile(r"([-\w\.]+)\s*{")),  # a component
+            Tokenizer(ATTRIBUTE, re.compile(r"([-\w\.]+)\s*:")),  # an attribute
             ]
 
         self.tokenizers = [
@@ -73,7 +73,6 @@ class Lexer(object):
         self.newline = False
         self.tokens = []
 
-
     def tokenize(self):
         while True:
             self.advance()
@@ -81,7 +80,6 @@ class Lexer(object):
                 break
             self.apply_tokenizers()
         self.fixup_tokens()
-
 
     def advance(self):
         self.newline = False
@@ -97,7 +95,6 @@ class Lexer(object):
                 self.idx += 1
             else:
                 break
-
 
     def apply_tokenizers(self):
         if self.newline:

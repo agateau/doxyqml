@@ -50,7 +50,6 @@ class Test(object):
         self.output_dir = os.path.join(self.name, "output")
         self.expected_dir = os.path.join(self.name, "expected")
 
-
     def build(self):
         ok = True
         if os.path.exists(self.output_dir):
@@ -74,12 +73,10 @@ class Test(object):
                     ok = False
         return ok
 
-
     def update(self):
         if os.path.exists(self.expected_dir):
             shutil.rmtree(self.expected_dir)
         shutil.copytree(self.output_dir, self.expected_dir)
-
 
     def compare(self):
         lst = list_files(self.expected_dir)
@@ -122,13 +119,13 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-u", "--update",
-        help="Update expected output from test ID", metavar="ID")
+                        help="Update expected output from test ID", metavar="ID")
     parser.add_argument("--doxyqml", default=default_doxyqml,
-        help="Path to the doxyqml executable ({})".format(default_doxyqml))
+                        help="Path to the doxyqml executable ({})".format(default_doxyqml))
     parser.add_argument("test_id", nargs="?",
-        help="Run specified test only")
+                        help="Run specified test only")
     parser.add_argument("--import", dest="import_", action="store_true",
-        help="Import Doxyqml module instead of using the executable. Useful for code coverage.")
+                        help="Import Doxyqml module instead of using the executable. Useful for code coverage.")
     args = parser.parse_args()
 
     if args.import_:
