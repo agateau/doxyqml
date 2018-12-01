@@ -77,3 +77,9 @@ parameter name.
      * @param user The user which logged in
      */
     signal loggedIn(User user)
+
+## Extracting internal elements
+
+QML elements with an id are exported as private member variables. If you set
+the `EXTRACT_ALL` and EXTRACT_PRIVATE` Doxygen keys to `YES`, then these
+elements will be visible in the generated documentation.
