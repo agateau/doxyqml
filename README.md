@@ -84,6 +84,6 @@ parameter name.
 
 ## Extracting internal elements
 
-QML elements with an id are exported as private member variables. If you set
-the `EXTRACT_ALL` and EXTRACT_PRIVATE` Doxygen keys to `YES`, then these
-elements will be visible in the generated documentation.
+QML elements with an id are exported as private member variables. If you
+set the `EXTRACT_ALL` and `EXTRACT_PRIVATE` Doxygen keys to `YES`, then
+these elements will be visible in the generated documentation.
