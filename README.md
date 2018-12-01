@@ -3,8 +3,10 @@
 
 # Goals
 
-Doxyqml turns .qml into pseudo-C++ which Doxygen can then use to generate
-documentation.
+Doxyqml lets you use Doxygen to document your QML classes.
+
+It integrates as a Doxygen input filter to turn .qml files into pseudo-C++
+which Doxygen can then use to generate documentation.
 
 # Installing
 
@@ -18,7 +20,8 @@ or manually with:
 
 # Telling Doxygen to use Doxyqml
 
-To tell Doxygen about Doxyqml you must make a few changes to your Doxygen file.
+To tell Doxygen about Doxyqml you must make a few changes to your Doxygen
+configuration file.
 
 1. Add the .qml extension to the `FILTER_PATTERNS` key:
 
@@ -39,8 +42,9 @@ To tell Doxygen about Doxyqml you must make a few changes to your Doxygen file.
 
 # Documenting types
 
-QML is partly-typed: functions are untyped, properties and signals are. Doxyqml
-provides a way to define types when they are missing or not precise enough.
+QML is partially-typed: functions are untyped, properties and signals are.
+Doxyqml provides a way to define types when they are missing or not precise
+enough.
 
 ## Functions
 
