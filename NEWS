@@ -1,3 +1,12 @@
+# 2018.12.01 - 0.5.0
+
+- Turn internal QML elements into private C++ members, see README.md for details on how to use this. (Matthew Lam)
+- Add support for `@returns`, a synonym for `@return`. (Max Paperno)
+- Add support for trailing (inline) Doxygen comments for properties, signals, and methods (but not method params). (Max Paperno)
+- Fix installation issues on Windows (Max Paperno)
+- Improve test coverage and infrastructure (Aurelien Gateau)
+- Setup flake8 to enforce coding style (Aurelien Gateau)
+
 # 2018.05.19 - 0.4.0
 
 - Add support for wrapping generated C++ code in a namespace (Taylor Braun-Jones)

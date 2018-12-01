@@ -2,7 +2,7 @@ Update NEWS:
 
     r!git log --pretty=format:'- \%s (\%an)' x.y.z-1..HEAD
 
-Bump version number in doxyqml/doxyqml.py
+Bump version number in doxyqml/__init__.py
 
 Commit
 
