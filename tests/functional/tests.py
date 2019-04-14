@@ -3,6 +3,7 @@
 
 import argparse
 import difflib
+import json
 import os
 import shutil
 import sys
@@ -26,18 +27,18 @@ class SubprocessRunner:
     def __init__(self, executable):
         self.executable = executable
 
-    def run(self, qml_file, stdout, cwd):
+    def run(self, qml_file, args, stdout, cwd):
         return subprocess.call(
-            [self.executable, qml_file],
+            [self.executable, qml_file] + args,
             stdout=stdout, cwd=cwd)
 
 
 class ImportRunner:
-    def run(self, qml_file, stdout, cwd):
+    def run(self, qml_file, args, stdout, cwd):
         pwd = os.getcwd()
         os.chdir(cwd)
         try:
-            return doxyqml_main([qml_file], out=stdout)
+            return doxyqml_main([qml_file] + args, out=stdout)
         finally:
             os.chdir(pwd)
 
@@ -49,6 +50,16 @@ class Test(object):
         self.input_dir = os.path.join(self.name, "input")
         self.output_dir = os.path.join(self.name, "output")
         self.expected_dir = os.path.join(self.name, "expected")
+        self._read_args()
+
+    def _read_args(self):
+        args_json = os.path.join(self.name, "args.json")
+        if not os.path.exists(args_json):
+            self.args = []
+            return
+        with open(args_json) as f:
+            self.args = json.load(f)
+            assert type(self.args) is list
 
     def build(self):
         ok = True
@@ -67,7 +78,7 @@ class Test(object):
                 os.makedirs(out_dir)
 
             with open(out_path, "w") as out:
-                ret = self.runner.run(name, out, self.input_dir)
+                ret = self.runner.run(name, args=self.args, stdout=out, cwd=self.input_dir)
                 if ret != 0:
                     self.error("doxyqml failed on {}".format(name))
                     ok = False
