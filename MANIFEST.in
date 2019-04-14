@@ -1,5 +1,6 @@
 recursive-include doxyqml *.py
 recursive-include tests *.py
+include tests/functional/*/args.json
 recursive-include tests/functional/*/input *.qml qmldir
 recursive-include tests/functional/*/expected *.qml.cpp
 include tests/run-coverage
