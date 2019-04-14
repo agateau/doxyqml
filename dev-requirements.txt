@@ -1,2 +1,4 @@
 flake8==3.6.0
 coverage==4.5.1
+twine
+readme_renderer[md]

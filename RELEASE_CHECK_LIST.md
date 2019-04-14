@@ -25,6 +25,11 @@ Run unit tests:
 Run functional tests:
 
     ./tests/functional/tests.py
+
+Check rendering of PyPI page:
+
+    pip install --upgrade twine 'readme_renderer[md]'
+    twine check
     exit
 
 If OK, create "x.y.z" tag:
