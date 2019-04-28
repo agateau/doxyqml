@@ -50,6 +50,10 @@ def parse_args(argv):
                         action='append',
                         default=[],
                         help="Wrap the generated C++ classes in NAMESPACE")
+    parser.add_argument("--no-since-version",
+                        action="store_true",
+                        default=False,
+                        help="Don't append \"Since: [version]\" info to docstring")
     parser.add_argument('--version',
                         action='version',
                         version='%%(prog)s %s' % __version__)
@@ -145,6 +149,9 @@ def main(argv=None, out=None):
             print("%20s %s" % (token.type, token.value))
 
     classname, classversion = find_classname(name, namespace)
+    if args.no_since_version:
+        classversion = None
+
     qml_class = QmlClass(classname, classversion)
 
     try:
