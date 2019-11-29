@@ -45,6 +45,33 @@ Item {
         return arg * arg;
     }
 
+    /**
+     * Function with int default parameter
+     * @param type:int arg A parameter with a defaultvalue
+     * @return type:int the result
+     */
+    function intDefaultParameter(arg = 0) {
+        return arg;
+    }
+
+    /**
+     * Function with string default parameter
+     * @param type:string arg A parameter with a default value
+     * @return type:string the result
+     */
+    function stringDefaultParameter(arg = "hello") {
+        return arg;
+    }
+
+    /**
+     * Function with property as default parameter
+     * @param type:int arg A parameter with a default value
+     * @return type:int the result
+     */
+    function propDefaultParameter(arg = foo) {
+        return arg;
+    }
+
     /// One-line comment
     function refresh() {
     }

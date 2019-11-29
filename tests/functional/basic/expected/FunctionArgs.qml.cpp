@@ -37,6 +37,24 @@ Q_PROPERTY(string block)
      * @return the result
      */
 int square(arg);
+/**
+     * Function with int default parameter
+     * @param arg A parameter with a defaultvalue
+     * @return the result
+     */
+int intDefaultParameter(int arg = 0);
+/**
+     * Function with string default parameter
+     * @param arg A parameter with a default value
+     * @return the result
+     */
+string stringDefaultParameter(string arg = "hello");
+/**
+     * Function with property as default parameter
+     * @param arg A parameter with a default value
+     * @return the result
+     */
+int propDefaultParameter(int arg = foo);
 /// One-line comment
 void refresh();
 
