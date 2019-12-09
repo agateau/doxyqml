@@ -139,9 +139,16 @@ def parse_arguments(reader, typed=False):
             arg.type = arg_type
         else:
             arg = QmlArgument(token.value)
-        args.append(arg)
 
         token = reader.consume_expecting(lexer.CHAR)
+
+        if token.value == "=":
+            token = reader.consume_expecting([lexer.ELEMENT, lexer.STRING])
+            arg.default_value = token.value
+            token = reader.consume_expecting(lexer.CHAR)
+
+        args.append(arg)
+
         if token.value == ")":
             return args
         elif token.value != ",":
@@ -207,12 +214,18 @@ class TokenReader(object):
             if not is_comment_token(token):
                 return token
 
-    def consume_expecting(self, type, value=None):
+    def consume_expecting(self, expected_types, value=None):
         token = self.consume_wo_comments()
-        if token.type != type:
-            raise QmlParserError("Expected token of type '%s', got '%s' instead" % (type, token.type), token)
+        if type(expected_types) is list:
+            if token.type not in expected_types:
+                raise QmlParserError(
+                    "Expected token of type '%s', got '%s' instead" % (expected_types, token.type), token)
+        elif token.type != expected_types:
+            raise QmlParserError(
+                "Expected token of type '%s', got '%s' instead" % (expected_types, token.type), token)
         if value is not None and token.value != value:
-            raise QmlParserError("Expected token with value '%s', got '%s' instead" % (value, token.value), token)
+            raise QmlParserError("Expected token with value '%s', got '%s' instead" % (
+                value, token.value), token)
         return token
 
     def at_end(self):

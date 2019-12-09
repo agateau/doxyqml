@@ -141,6 +141,7 @@ class QmlClass(QmlBaseComponent):
 
 class QmlComponent(QmlBaseComponent):
     """A component inside a QmlClass"""
+
     def __init__(self, name):
         QmlBaseComponent.__init__(self, name)
         self.comment = None
@@ -173,12 +174,19 @@ class QmlArgument(object):
     def __init__(self, name):
         self.type = ""
         self.name = name
+        self.default_value = None
 
     def __str__(self):
         if self.type == "":
-            return self.name
+            return self.name + self.default_value_string()
         else:
-            return self.type + " " + self.name
+            return self.type + " " + self.name + self.default_value_string()
+
+    def default_value_string(self):
+        if self.default_value is None:
+            return ''
+        else:
+            return ' = {}'.format(self.default_value)
 
     def is_public_element(self):
         return True
